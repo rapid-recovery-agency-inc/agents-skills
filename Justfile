@@ -60,10 +60,13 @@ fmt: ensure-pre-commit
 check: fmt lint
 
 # Stage a skill into local sandbox for testing.
-# Usage: just stage-skill skill=skill-creator
+# Usage: just stage-skill skill-creator
+# Also supported: just stage-skill skill=skill-creator
 stage-skill skill:
-    @src="skills/generic/{{skill}}"; \
-    dst=".agents/staging/{{skill}}"; \
+    @requested="{{skill}}"; \
+    normalized="${requested#skill=}"; \
+    src="skills/generic/${normalized}"; \
+    dst=".agents/skills/${normalized}"; \
     if [ ! -d "$src" ]; then \
       echo "Skill not found: $src"; \
       exit 1; \
