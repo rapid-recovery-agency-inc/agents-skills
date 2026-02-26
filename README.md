@@ -2,7 +2,7 @@
 
 This repo is a centralized skills registry for AI agents.
 
-It stores versioned `SKILL.md` files by stack/domain, plus a `registry.json` index and CLI scaffolding for distribution. Teams update skills here via PRs, then consumer projects pull updates (for example via Git submodules) so IDE agents can index the latest guidance directly from `.agents/skills`.
+It stores versioned `SKILL.md` files by stack/domain, plus a `registry.json` index and CLI scaffolding for distribution. Teams update skills here via PRs, then consumer projects pull updates (for example via Git submodules).
 
 ## Workflow Diagram
 
