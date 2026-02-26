@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./registry.schema.json",
+  "title": "Agents Skills Registry",
+  "description": "Registry contract for skills consumed by future CLI installers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source", "skills"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["install_mode", "repo", "default_ref", "submodule_path", "skills_root"],
+      "properties": {
+        "install_mode": {
+          "type": "string",
+          "enum": ["submodule"]
+        },
+        "repo": {
+          "type": "string",
+          "format": "uri"
+        },
+        "default_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "submodule_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "skills_root": {
+          "type": "string",
+          "pattern": "^skills$"
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "source_path",
+          "entrypoint",
+          "version",
+          "install"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+/[a-z0-9-]+$"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "category": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "source_path": {
+            "type": "string",
+            "pattern": "^skills/[a-z0-9-]+/[a-z0-9-]+$"
+          },
+          "entrypoint": {
+            "type": "string",
+            "const": "SKILL.md"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          },
+          "install": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target_path", "link_mode"],
+            "properties": {
+              "target_path": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+/[a-z0-9-]+$"
+              },
+              "link_mode": {
+                "type": "string",
+                "enum": ["symlink", "copy"]
+              }
+            }
+          },
+          "compatibility": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "uniqueItems": true
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "experimental", "deprecated"]
+          }
+        }
+      }
+    }
+  }
+}

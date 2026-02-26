@@ -1,0 +1,85 @@
+# =========================
+# Combined Node + Python (.gitignore)
+# =========================
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Tools
+.tools/
+
+# Local agent/skill sandbox
+.agents/**
+!.agents/.gitkeep
+
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Test/type/tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Packaging/build
+build/
+dist/
+*.egg-info/
+
+# -------------------------
+# Node / TypeScript
+# -------------------------
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Tool caches
+.nyc_output/
+.eslintcache/
+.cache/
+.turbo/
+.next/
+out/
+.pnpm-store/
+
+# -------------------------
+# Secrets / local config
+# -------------------------
+.env
+.env.*
+!.env.example
+
+# -------------------------
+# Runtime/temp
+# -------------------------
+tmp/
+temp/

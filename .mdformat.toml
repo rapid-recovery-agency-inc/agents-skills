@@ -1,0 +1,12 @@
+# .mdformat.toml
+wrap = "keep"                    # Don't change line wrapping
+number = false                   # Don't use consecutive numbering
+end_of_line = "lf"              # Use LF line endings
+validate = true                  # Validate HTML output
+
+extensions = ["gfm", "tables", "frontmatter", "footnote", "deflist", "toc"]
+codeformatters = ["python", "javascript", "css", "html", "xml", "json", "yaml", "toml"]
+
+# Plugin-specific configuration
+[plugin.gfm]
+# Plugin-specific options go here
