@@ -1,58 +1,54 @@
-# skills/: skill definitions for agent runtime consumption
+# skills/: source-of-truth skill catalog for agent runtimes
 
-> **Purpose:** Define and maintain the canonical `SKILL.md` content that agent runtimes consume from `.agents/skills`. Keep this tree focused on skill behavior, trigger quality, and validation-friendly metadata.
+> **Purpose:** Define and maintain canonical `SKILL.md` content used by registry-aware agent runtimes. Keep this tree focused on reusable behavior, valid frontmatter, and stable skill paths.
 
 ## Scope
 
-Applies to: `skills/` and all nested skill directories (for example `skills/generic/*`).
-Excludes: repository-wide tooling/docs outside this tree (`cli/`, root README, hook setup).
+Applies to: `skills/` and all nested skill directories.
+Excludes: repository tooling and docs outside this subtree (`cli/`, root README, hook configuration).
 
 ## Authority & Precedence
 
 Precedence:
 
 1. This file
+1. Child AGENTS files under `skills/*/AGENTS.md`
 1. Task-specific user/developer instructions
 
-If a parent `AGENTS.md` is added later, it takes precedence over this file.
+## How to Run Locally
+
+- Validate formatting + checks: `just lint`
+- Stage one skill to runtime path: `just stage-skill <skill-name>`
+- Validate one skill frontmatter quickly:
+  - `python skills/generic/skill-creator/scripts/quick_validate.py skills/generic/<skill-name>`
 
 ## Directory Contract
 
 - Each skill directory MUST contain `SKILL.md`.
-- `SKILL.md` frontmatter MUST include:
-  - `name`
-  - `description`
-- Allowed top-level frontmatter keys are constrained to:
+- Required frontmatter: `name`, `description`.
+- Allowed top-level frontmatter keys:
   - `name`, `description`, `license`, `allowed-tools`, `metadata`, `compatibility`
-- Skill `name` SHOULD be kebab-case.
+- Skill names SHOULD be kebab-case.
 
-## Runtime Path Contract (`.agents/skills`)
+## Runtime Path Contract
 
-- Skills are authored in this source tree (`skills/...`).
-- Registry-driven consumers materialize skills under `.agents/skills/...`.
-- Keep skill paths stable; moving directories requires registry updates.
-
-## How to Run Locally
-
-- **Validate repo hooks:** `just lint`
-- **Stage a skill to runtime path:** `just stage-skill <skill-name>`
-  - Example: `just stage-skill create-agents-files`
-- **Validate one skill frontmatter quickly:**
-  - `python skills/generic/skill-creator/scripts/quick_validate.py skills/generic/<skill-name>`
+- Source authoring path: `skills/...`
+- Runtime materialization path: `.agents/skills/...`
+- Any move/rename in `skills/` MUST be paired with `registry.json` updates.
 
 ## Common Changes
 
-- **Add a new skill:** create `skills/<category>/<skill-name>/SKILL.md`, then register it in `registry.json`.
-- **Update a skill:** edit `SKILL.md`, keep frontmatter valid, then run `just lint`.
-- **Rename/move a skill:** update both filesystem path and matching `registry.json` `source_path`/install mapping in one change.
+- Add a skill: create `skills/<category>/<skill-name>/SKILL.md`, then add/update entry in `registry.json`.
+- Update a skill: edit content + frontmatter, then run `just lint`.
+- Rename/move a skill: update filesystem path and matching registry `source_path`/install mapping in the same change.
 
 ## Gotchas
 
-- Do not add unrelated files to skill directories unless they are part of the skill package.
-- `check-added-large-files` runs in pre-commit; keep new assets reasonably small.
-- If commit is blocked because `.pre-commit-config.yaml` changed, stage that file before committing.
+- Keep guidance portable; avoid hardcoding product-specific assumptions unless intended.
+- Do not commit secrets or private data in skill examples.
 
-## Security Notes
+## Child AGENTS
 
-- Do not place secrets or credentials in `SKILL.md` or example files.
-- Keep examples generic and non-sensitive.
+> **Agent Directive:** Read child AGENTS files for category-specific guidance before editing nested skills.
+
+- [generic/AGENTS.md](generic/AGENTS.md) - Rules for cross-project, language-agnostic generic skills.

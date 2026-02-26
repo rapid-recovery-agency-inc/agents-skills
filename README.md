@@ -16,6 +16,22 @@ Required: **Git**.
 
 If your project uses this repo as a submodule (as shown in the diagram), your agent can consume skills without local Python/Node setup.
 
+### Current skills tree
+
+```text
+skills/
+└── generic/
+    ├── create-agents-files/
+    │   └── SKILL.md
+    └── skill-creator/
+        └── SKILL.md
+```
+
+### Skill purposes (one-liners)
+
+- `generic/create-agents-files`: Creates and maintains hierarchical `AGENTS.md` files from real repo structure and usage evidence.
+- `generic/skill-creator`: Helps draft, evaluate, and iteratively improve skills for better quality and trigger accuracy.
+
 ## Contribute Skills
 
 ### Setup (optional)
