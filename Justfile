@@ -28,8 +28,8 @@ install-hooks: ensure-pre-commit
       .tools/pre-commit-venv/bin/pre-commit install --hook-type pre-commit --hook-type pre-push; \
     fi
 
-# Run all configured checks.
-lint: ensure-pre-commit
+# Run format pass first, then all configured checks.
+lint: ensure-pre-commit fmt
     @if command -v pre-commit >/dev/null 2>&1; then \
       pcmd="pre-commit"; \
     else \
@@ -37,7 +37,7 @@ lint: ensure-pre-commit
     fi; \
     files="$(git ls-files --cached --others --exclude-standard)"; \
     if [ -n "$files" ]; then \
-      "$pcmd" run --files $files; \
+      SKIP=mdformat "$pcmd" run --files $files; \
     else \
       echo "No repository files found to lint."; \
     fi
@@ -56,8 +56,8 @@ fmt: ensure-pre-commit
       echo "No Markdown files found to format."; \
     fi
 
-# Convenience target: format, then lint.
-check: fmt lint
+# Backward-compatible alias.
+check: lint
 
 # Stage a skill into local sandbox for testing.
 # Usage: just stage-skill skill-creator

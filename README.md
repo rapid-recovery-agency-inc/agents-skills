@@ -36,6 +36,31 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+### Justfile usage (practical)
+
+From repo root:
+
+```bash
+# Show available tasks
+just
+
+# Install git hooks (pre-commit + pre-push)
+just install-hooks
+
+# Run all checks on tracked/untracked repo files
+just lint
+
+# Stage one skill into local runtime path (.agents/skills)
+just stage-skill create-agents-files
+# also works: just stage-skill skill=create-agents-files
+```
+
+Typical contributor loop:
+
+1. Edit skill files.
+1. Run `just lint`.
+1. Stage changes (`git add -A`) and commit.
+
 ### Repository layout
 
 ```text
