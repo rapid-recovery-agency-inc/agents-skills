@@ -172,10 +172,11 @@ def ensure_submodule(
     rel_path = str(submodule_path)
 
     full_path = project_root / submodule_path
-    if not full_path.exists():
-        full_path.mkdir(parents=True, exist_ok=True)
 
-    if not (project_root / submodule_path).exists():
+    # Check if submodule is already tracked
+    submodule_exists = full_path.exists() and ((full_path / ".git").exists() or any(full_path.iterdir()))
+
+    if not submodule_exists:
         actions.append(
             run_git(
                 ["submodule", "add", "-f", "-b", ref, repo_url, rel_path],
@@ -184,13 +185,15 @@ def ensure_submodule(
             )
         )
 
-    actions.append(
-        run_git(
-            ["submodule", "update", "--init", "--remote", rel_path],
-            project_root,
-            dry_run=dry_run,
+    # Only update if submodule was added or already exists
+    if submodule_exists or actions:
+        actions.append(
+            run_git(
+                ["submodule", "update", "--init", "--remote", rel_path],
+                project_root,
+                dry_run=dry_run,
+            )
         )
-    )
     return [a for a in actions if a]
 
 
