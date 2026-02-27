@@ -12,9 +12,8 @@ from .core import (
     filter_skills,
     load_registry,
     resolve_paths,
-    ensure_submodule,
-    materialize_skill,
     ensure_git_installed,
+    fetch_skill_directory,
 )
 
 
@@ -110,7 +109,6 @@ def _add_impl(
     data = load_registry(ctx)
 
     source = data["source"]
-    submodule_path = _target_submodule(target_root, source["submodule_path"])
 
     if skill_id == "all":
         skills = data["skills"]
@@ -120,10 +118,8 @@ def _add_impl(
     # Build list of target paths for confirmation
     target_paths: list[str] = []
     for skill in skills:
-        target_file = _target_skill_file(
-            target_root, skill["install"]["target_path"], skill["entrypoint"]
-        )
-        target_paths.append(str(ctx.project_root / target_file))
+        target_path = Path(".agents/skills") / skill["install"]["target_path"]
+        target_paths.append(str(ctx.project_root / target_path))
 
     # Show confirmation prompt if not skipped
     if not skip_confirm and not dry_run:
@@ -136,25 +132,16 @@ def _add_impl(
             typer.echo("Aborted.")
             raise typer.Exit(code=0)
 
-    actions = ensure_submodule(
-        repo_url=source["repo"],
-        submodule_path=submodule_path,
-        ref=source["default_ref"],
-        project_root=ctx.project_root,
-        dry_run=dry_run,
-    )
-
+    # Fetch each skill directory from GitHub
     installed: list[str] = []
     for skill in skills:
-        source_file = submodule_path / skill["source_path"] / skill["entrypoint"]
-        target_file = _target_skill_file(
-            target_root, skill["install"]["target_path"], skill["entrypoint"]
-        )
-        installed.append(
-            materialize_skill(
-                source_file=source_file,
-                target_file=target_file,
-                link_mode=skill["install"]["link_mode"],
+        target_path = Path(".agents/skills") / skill["install"]["target_path"]
+        installed.extend(
+            fetch_skill_directory(
+                repo_url=source["repo"],
+                source_path=skill["source_path"],
+                target_path=target_path,
+                ref=source["default_ref"],
                 project_root=ctx.project_root,
                 dry_run=dry_run,
             )
@@ -163,16 +150,13 @@ def _add_impl(
     if as_json:
         _print_json(
             {
-                "actions": [a for a in actions if a],
+                "actions": [],
                 "results": installed,
                 "dry_run": dry_run,
             }
         )
         return
 
-    for action in actions:
-        if action:
-            typer.echo(action)
     for line in installed:
         typer.echo(line)
 
