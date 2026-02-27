@@ -171,10 +171,14 @@ def ensure_submodule(
     actions: list[str] = []
     rel_path = str(submodule_path)
 
+    full_path = project_root / submodule_path
+    if not full_path.exists():
+        full_path.mkdir(parents=True, exist_ok=True)
+
     if not (project_root / submodule_path).exists():
         actions.append(
             run_git(
-                ["submodule", "add", "-b", ref, repo_url, rel_path],
+                ["submodule", "add", "-f", "-b", ref, repo_url, rel_path],
                 project_root,
                 dry_run=dry_run,
             )

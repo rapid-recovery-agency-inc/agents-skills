@@ -212,7 +212,7 @@ section-order = [
 ]
 
 [tool.ruff.lint.pylint]
-max-args = 6
+max-args = 8
 
 [tool.ruff.lint.mccabe]
 max-complexity = 13

@@ -103,6 +103,7 @@ def _add_impl(
     dry_run: bool,
     as_json: bool,
     use_remote: bool = True,
+    skip_confirm: bool = False,
 ) -> None:
     ensure_git_installed()
     ctx = resolve_paths(registry=registry, use_remote=use_remote)
@@ -110,6 +111,31 @@ def _add_impl(
 
     source = data["source"]
     submodule_path = _target_submodule(target_root, source["submodule_path"])
+
+    if skill_id == "all":
+        skills = data["skills"]
+    else:
+        skills = [get_skill(data, skill_id)]
+
+    # Build list of target paths for confirmation
+    target_paths: list[str] = []
+    for skill in skills:
+        target_file = _target_skill_file(
+            target_root, skill["install"]["target_path"], skill["entrypoint"]
+        )
+        target_paths.append(str(ctx.project_root / target_file))
+
+    # Show confirmation prompt if not skipped
+    if not skip_confirm and not dry_run:
+        typer.echo("Skill(s) will be installed to:")
+        for path in target_paths:
+            typer.echo(f"  {path}")
+        typer.echo()
+        confirm = typer.prompt("Continue? (y/n)", type=str, default="y")
+        if confirm.lower() not in ("y", "yes"):
+            typer.echo("Aborted.")
+            raise typer.Exit(code=0)
+
     actions = ensure_submodule(
         repo_url=source["repo"],
         submodule_path=submodule_path,
@@ -117,11 +143,6 @@ def _add_impl(
         project_root=ctx.project_root,
         dry_run=dry_run,
     )
-
-    if skill_id == "all":
-        skills = data["skills"]
-    else:
-        skills = [get_skill(data, skill_id)]
 
     installed: list[str] = []
     for skill in skills:
@@ -170,6 +191,7 @@ def add_skill(
     ),
     as_json: bool = typer.Option(False, "--json", help="Output JSON"),
     remote: bool = typer.Option(True, "--remote/--local"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation"),
 ) -> None:
     """Add or update one skill (or all)."""
     try:
@@ -180,6 +202,7 @@ def add_skill(
             dry_run=dry_run,
             as_json=as_json,
             use_remote=remote,
+            skip_confirm=yes,
         )
     except CliError as exc:
         typer.secho(str(exc), fg=typer.colors.RED, err=True)
@@ -194,6 +217,7 @@ def install_alias(
     dry_run: bool = typer.Option(False, "--dry-run"),
     as_json: bool = typer.Option(False, "--json"),
     remote: bool = typer.Option(True, "--remote/--local"),
+    yes: bool = typer.Option(False, "--yes", "-y"),
 ) -> None:
     """Alias for add."""
     add_skill(
@@ -203,6 +227,7 @@ def install_alias(
         dry_run=dry_run,
         as_json=as_json,
         remote=remote,
+        yes=yes,
     )
 
 
@@ -213,6 +238,7 @@ def sync_alias(
     dry_run: bool = typer.Option(False, "--dry-run"),
     as_json: bool = typer.Option(False, "--json"),
     remote: bool = typer.Option(True, "--remote/--local"),
+    yes: bool = typer.Option(False, "--yes", "-y"),
 ) -> None:
     """Alias for add all."""
     add_skill(
@@ -222,6 +248,7 @@ def sync_alias(
         dry_run=dry_run,
         as_json=as_json,
         remote=remote,
+        yes=yes,
     )
 
 
@@ -232,10 +259,11 @@ def update_alias(
     dry_run: bool = typer.Option(False, "--dry-run"),
     as_json: bool = typer.Option(False, "--json"),
     remote: bool = typer.Option(True, "--remote/--local"),
+    yes: bool = typer.Option(False, "--yes", "-y"),
 ) -> None:
     """Alias for sync."""
     sync_alias(
-        registry=registry, target_root=target_root, dry_run=dry_run, as_json=as_json, remote=remote
+        registry=registry, target_root=target_root, dry_run=dry_run, as_json=as_json, remote=remote, yes=yes
     )
 
 
