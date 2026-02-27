@@ -1,110 +1,88 @@
 # Agents Skills
 
-This repo is a centralized skills registry for AI agents.
-
-It stores versioned `SKILL.md` files by stack/domain, plus a `registry.json` index and CLI scaffolding for distribution. Teams update skills here via PRs, then consumer projects pull updates (for example via Git submodules).
-
-## Workflow Diagram
+Centralized registry of AI agent skills. Install via CLI, consume in your agent runtime.
 
 ![AI Skills workflow via Git submodules](./assets/ai-skills-flow.png)
 
-## Use Skills
-
-### Quick start
-
-Required: **Git**.
-
-If your project uses this repo as a submodule (as shown in the diagram), your agent can consume skills without local Python/Node setup.
-
-### Current skills tree
-
-```text
-skills/
-└── generic/
-    ├── create-agents-files/
-    │   └── SKILL.md
-    └── skill-creator/
-        └── SKILL.md
-```
-
-### Skill purposes (one-liners)
-
-- `generic/create-agents-files`: Creates and maintains hierarchical `AGENTS.md` files from real repo structure and usage evidence.
-- `generic/skill-creator`: Helps draft, evaluate, and iteratively improve skills for better quality and trigger accuracy.
-
-## Contribute Skills
-
-### Setup (optional)
-
-Use these tools only if you are editing this repository:
-
-- Python 3.x (for pre-commit)
-- Node.js (only if you use Node-based tooling/plugins)
+## Quick Start
 
 ```bash
-# Install pre-commit
-pip install pre-commit
+# Install CLI
+pip install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
 
-# Install git hooks
-pre-commit install
+# List available skills
+agents-skills list
 
-# Run checks manually
-pre-commit run --all-files
+# Add a skill to your project
+agents-skills add create-agents-files
 ```
 
-### Justfile usage (practical)
+## Skills
 
-From repo root:
+- **create-agents-files** - Generates hierarchical AGENTS.md from repo structure and usage evidence
+- **skill-creator** - Draft, evaluate, and improve skills with evals and variance analysis
+
+## Common Tasks
 
 ```bash
-# Show available tasks
-just
+# Search for skills
+agents-skills list python
 
-# Install git hooks (pre-commit + pre-push)
-just install-hooks
+# Add one skill
+agents-skills add skill-creator
 
-# Run all checks on tracked/untracked repo files
-just lint
-
-# Stage one skill into local runtime path (.agents/skills)
-just stage-skill create-agents-files
-# also works: just stage-skill skill=create-agents-files
+# Sync all skills
+agents-skills sync
 ```
 
-Typical contributor loop:
+## Installation
 
-1. Edit skill files.
-1. Run `just lint`.
-1. Stage changes (`git add -A`) and commit.
+<details>
+<summary>Using pip (recommended)</summary>
 
-### Repository layout
-
-```text
-skills/
-registry.schema.json
-registry.json
-cli/
+```bash
+pip install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
 ```
 
-- `skills/`: skill definitions and related assets/templates
-- `registry.schema.json`: JSON Schema contract for registry entries
-- `registry.json`: source-of-truth index used by registry-aware tooling/CLI
-- `cli/`: placeholder for future install/update tooling
+</details>
 
-### Practical workflow
+<details>
+<summary>Using Poetry</summary>
 
-1. Update or add skill files in this repo.
-1. Open a PR and review changes.
-1. Consumer projects pull updates (for example: `git submodule update --remote`).
-1. IDE agents re-index and apply updated guidance from `.agents/skills`.
+```bash
+poetry self add "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
+```
 
-### Contributing
+</details>
 
-1. Create a branch.
-1. Make focused changes.
-1. Run `pre-commit run --all-files`.
-1. Open a PR with a clear summary of skill changes.
+<details>
+<summary>Using uv</summary>
 
-### License
+```bash
+# Install as a tool
+uv tool install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
 
-TODO: Add license information.
+# Or run ephemerally
+uvx --from "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli" agents-skills list
+```
+
+</details>
+
+## Contributing
+
+1. Edit skills in `skills/`
+1. Run `just lint`
+1. Open PR
+
+**Setup:** `pip install pre-commit && pre-commit install`
+
+**Repository structure:**
+
+- `skills/` - Skill definitions and assets
+- `registry.json` - Source of truth index
+- `registry.schema.json` - JSON Schema validation
+- `cli/` - CLI tool for consuming skills
+
+## License
+
+Apache-2.0
