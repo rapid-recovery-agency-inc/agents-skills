@@ -101,7 +101,7 @@
             "properties": {
               "target_path": {
                 "type": "string",
-                "pattern": "^[a-z0-9-]+/[a-z0-9-]+$"
+                "pattern": "^[a-z0-9-]+$"
               },
               "link_mode": {
                 "type": "string",
