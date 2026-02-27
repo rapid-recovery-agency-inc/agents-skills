@@ -197,6 +197,83 @@ def ensure_submodule(
     return [a for a in actions if a]
 
 
+def fetch_skill_directory(
+    repo_url: str,
+    source_path: str,
+    target_path: Path,
+    ref: str,
+    project_root: Path,
+    dry_run: bool,
+) -> list[str]:
+    """Fetch a skill directory from GitHub using API.
+
+    Args:
+        repo_url: GitHub repository URL (e.g., https://github.com/owner/repo)
+        source_path: Path in the repo (e.g., skills/generic/create-agents-files)
+        target_path: Local target directory relative to project_root
+        ref: Git ref (branch, tag, commit)
+        project_root: Project root directory
+        dry_run: If True, only print actions without executing
+
+    Returns:
+        List of installed file paths
+
+    """
+    from .http_client import fetch_file_content, fetch_directory_tree  # noqa: PLC0415
+
+    # Parse owner/repo from URL
+    # URL format: https://github.com/owner/repo or git@github.com:owner/repo
+    if "github.com" in repo_url:
+        if repo_url.startswith("git@"):
+            # SSH format: git@github.com:owner/repo.git
+            parts = repo_url.rsplit(":", maxsplit=1)[-1].replace(".git", "").split("/")
+        else:
+            # HTTPS format: https://github.com/owner/repo
+            parts = repo_url.rstrip("/").split("/")[-2:]
+        owner, repo = parts[0], parts[1]
+    else:
+        raise CliError(f"Unsupported repo URL: {repo_url}")
+
+    # Get list of all files in the directory tree
+    files = fetch_directory_tree(owner, repo, source_path, ref)
+
+    if not files:
+        raise CliError(f"No files found in {source_path}")
+
+    # Calculate base path for stripping source_path prefix
+    base_path = source_path.rstrip("/")
+
+    # Create target directory
+    full_target = project_root / target_path
+
+    if dry_run:
+        actions = [f"Would fetch {len(files)} files to {full_target}"]
+        return actions
+
+    # Create target directory
+    full_target.mkdir(parents=True, exist_ok=True)
+
+    installed: list[str] = []
+    for file_info in files:
+        # Calculate relative path within the skill directory
+        rel_path = file_info["path"]
+        if rel_path.startswith(base_path + "/"):
+            rel_path = rel_path[len(base_path) + 1:]
+
+        # Local file path
+        local_file = full_target / rel_path
+
+        # Create parent directories
+        local_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Download and write file
+        content = fetch_file_content(file_info["download_url"])
+        local_file.write_bytes(content)
+        installed.append(str(local_file))
+
+    return installed
+
+
 def materialize_skill(
     *,
     source_file: Path,
