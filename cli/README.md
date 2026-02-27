@@ -87,6 +87,33 @@ agents-skills add all
 
 # Dry run
 agents-skills add skill-creator --dry-run
+
+# Install for specific IDE
+agents-skills add skill-creator --ide c  # Claude
+agents-skills add skill-creator --ide a  # Antigravity/Gemini
+```
+
+#### IDE-Specific Installation
+
+By default, skills are installed to `.agents/skills/` which is supported by Windsurf, Copilot, Codex, and Cursor. For other IDEs, you can specify a target directory:
+
+```bash
+# Interactive prompt (default)
+agents-skills add create-agents-files
+# Prompts:
+#   Which system are you installing skills for?
+#     w. Windsurf/Copilot/Codex/Cursor -> .agents/skills/<skill>/
+#     c. Claude                        -> .claude/skills/<skill>/
+#     a. Antigravity/Gemini            -> .gemini/skills/<skill>/
+#   Choice [w]:
+
+# Non-interactive with --ide flag
+agents-skills add create-agents-files --ide w  # .agents/skills/ (default)
+agents-skills add create-agents-files --ide c  # .claude/skills/
+agents-skills add create-agents-files --ide a  # .gemini/skills/
+
+# Skip confirmation prompt
+agents-skills add create-agents-files --ide c --yes
 ```
 
 ### Hidden Aliases
@@ -101,7 +128,9 @@ agents-skills add skill-creator --dry-run
 - `--remote` / `--local`: Use remote registry (default) or local files
 - `--registry <path>`: Override registry.json location (forces local mode)
 - `--target-root <path>`: Override destination root (default: `.agents`)
+- `--ide <choice>`: IDE choice: `w` (Windsurf/Copilot/Codex/Cursor), `c` (Claude), `a` (Antigravity/Gemini)
 - `--dry-run`: Show actions without writing
+- `--yes`, `-y`: Skip confirmation prompts
 - `--json`: Machine-readable output
 
 ## Registry
@@ -139,7 +168,11 @@ agents-skills list --registry /path/to/registry.json
 1. Validates registry against schema
 1. Ensures git submodule exists and is updated
 1. Resolves skill by ID or short name
-1. Materializes skill to `.agents/skills/<target_path>/SKILL.md`
+1. Prompts for IDE selection (if not using `--ide` flag or `--yes`)
+1. Materializes skill to IDE-specific directory:
+   - `.agents/skills/<target_path>/` (Windsurf/Copilot/Codex/Cursor)
+   - `.claude/skills/<target_path>/` (Claude)
+   - `.gemini/skills/<target_path>/` (Antigravity/Gemini)
 1. Uses symlink or copy based on registry configuration
 
 ## Development

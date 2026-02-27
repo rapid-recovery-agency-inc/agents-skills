@@ -22,7 +22,6 @@ IDE_DIR_MAP = {
     "default": ".agents/skills",
     "claude": ".claude/skills",
     "gemini": ".gemini/skills",
-    "cursor": ".cursor/skills",
 }
 
 
@@ -30,20 +29,18 @@ def get_ide_dir(ide_choice: str | None) -> str:
     """Get the skills directory path for the selected IDE.
 
     Args:
-        ide_choice: IDE choice string (None, "1", "2", "3", "4", "claude", "gemini", "cursor")
+        ide_choice: IDE choice string (None, "w", "c", "a", "claude", "gemini")
 
     Returns:
         The directory path for the selected IDE
 
     """
-    if not ide_choice or ide_choice == "1":
+    if not ide_choice or ide_choice.lower() == "w":
         return IDE_DIR_MAP["default"]
-    if ide_choice == "2":
+    if ide_choice.lower() == "c":
         return IDE_DIR_MAP["claude"]
-    if ide_choice == "3":
+    if ide_choice.lower() == "a":
         return IDE_DIR_MAP["gemini"]
-    if ide_choice == "4":
-        return IDE_DIR_MAP["cursor"]
     return IDE_DIR_MAP.get(ide_choice, IDE_DIR_MAP["default"])
 
 

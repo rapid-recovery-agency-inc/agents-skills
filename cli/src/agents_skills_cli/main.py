@@ -131,15 +131,12 @@ def _add_impl(
 
     # Show confirmation prompt if not skipped
     if not skip_confirm and not dry_run:
-        typer.echo(
-            "Are you installing skills for use with Claude, Antigravity/Gemini, or Cursor?"
-        )
-        typer.echo("1. Copilot/Windsurf/Codex -> .agents/skills/<skill> /")
-        typer.echo("2. Claude                 -> .claude/skills/<skill> /")
-        typer.echo("3. Antigravity/Gemini     -> .gemini/skills/<skill> /")
-        typer.echo("4. Cursor                 -> .cursor/skills/<skill> /")
+        typer.echo("Which system are you installing skills for?")
+        typer.echo("  w. Windsurf/Copilot/Codex/Cursor -> .agents/skills/<skill>/")
+        typer.echo("  c. Claude                        -> .claude/skills/<skill>/")
+        typer.echo("  a. Antigravity/Gemini            -> .gemini/skills/<skill>/")
         typer.echo()
-        selected = typer.prompt("Choice", type=str, default=ide_choice or "1")
+        selected = typer.prompt("Choice", type=str, default=ide_choice or "w")
         ide_dir = get_ide_dir(selected)
 
         # Rebuild target paths with new ide_dir
@@ -205,7 +202,7 @@ def add_skill(
     ide: str | None = typer.Option(
         None,
         "--ide",
-        help="IDE choice: 1 (default), 2 (claude), 3 (gemini), 4 (cursor)",
+        help="IDE choice: w (default), c (claude), a (antigravity/gemini)",
     ),
 ) -> None:
     """Add or update one skill (or all)."""
