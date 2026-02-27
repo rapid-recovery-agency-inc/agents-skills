@@ -19,7 +19,7 @@
       "entrypoint": "SKILL.md",
       "version": "0.1.0",
       "install": {
-        "target_path": "generic/create-agents-files",
+        "target_path": "create-agents-files",
         "link_mode": "symlink"
       },
       "compatibility": "Designed for agent runtimes that support Agent Skills and repository file editing.",
@@ -38,7 +38,7 @@
       "entrypoint": "SKILL.md",
       "version": "0.1.0",
       "install": {
-        "target_path": "generic/skill-creator",
+        "target_path": "skill-creator",
         "link_mode": "symlink"
       },
       "tags": ["evaluation", "optimization", "skill-authoring"],
