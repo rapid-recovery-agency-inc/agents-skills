@@ -9,6 +9,7 @@ from . import __version__
 from .core import (
     CliError,
     get_skill,
+    get_ide_dir,
     filter_skills,
     load_registry,
     resolve_paths,
@@ -28,7 +29,9 @@ app = typer.Typer(
 @app.callback()
 def main_callback(
     version: bool = typer.Option(False, "--version", "-v", help="Show version"),
-    remote: bool = typer.Option(True, "--remote/--local", help="Use remote registry or local"),
+    remote: bool = typer.Option(
+        True, "--remote/--local", help="Use remote registry or local"
+    ),
 ) -> None:
     if version:
         typer.echo(f"agents-skills {__version__}")
@@ -55,8 +58,12 @@ def _target_skill_file(
 @app.command("list")
 def list_skills(
     query: list[str] | None = typer.Argument(None, help="Search terms (repeatable)"),
-    registry: str | None = typer.Option(None, "--registry", help="Path to registry.json"),
-    tag: list[str] | None = typer.Option(None, "--tag", help="Filter by tag (repeatable)"),
+    registry: str | None = typer.Option(
+        None, "--registry", help="Path to registry.json"
+    ),
+    tag: list[str] | None = typer.Option(
+        None, "--tag", help="Filter by tag (repeatable)"
+    ),
     as_json: bool = typer.Option(False, "--json", help="Output JSON"),
     remote: bool = typer.Option(True, "--remote/--local"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show full details"),
@@ -80,9 +87,7 @@ def list_skills(
                 skill_name = skill["id"].split("/")[-1]
                 tags = skill.get("tags", [])
                 tag_str = " " + " ".join(f"[{tag}]" for tag in tags) if tags else ""
-                typer.echo(
-                    typer.style(skill_name, fg=typer.colors.BLUE) + tag_str
-                )
+                typer.echo(typer.style(skill_name, fg=typer.colors.BLUE) + tag_str)
                 typer.echo(f"  {skill['description']}")
                 typer.echo()
         else:
@@ -103,6 +108,7 @@ def _add_impl(
     as_json: bool,
     use_remote: bool = True,
     skip_confirm: bool = False,
+    ide_choice: str | None = None,
 ) -> None:
     ensure_git_installed()
     ctx = resolve_paths(registry=registry, use_remote=use_remote)
@@ -115,14 +121,34 @@ def _add_impl(
     else:
         skills = [get_skill(data, skill_id)]
 
+    ide_dir = get_ide_dir(ide_choice)
+
     # Build list of target paths for confirmation
     target_paths: list[str] = []
     for skill in skills:
-        target_path = Path(".agents/skills") / skill["install"]["target_path"]
+        target_path = Path(ide_dir) / skill["install"]["target_path"]
         target_paths.append(str(ctx.project_root / target_path))
 
     # Show confirmation prompt if not skipped
     if not skip_confirm and not dry_run:
+        typer.echo(
+            "Are you installing skills for use with Claude, Antigravity/Gemini, or Cursor?"
+        )
+        typer.echo("1. Copilot/Windsurf/Codex -> .agents/skills/<skill> /")
+        typer.echo("2. Claude                 -> .claude/skills/<skill> /")
+        typer.echo("3. Antigravity/Gemini     -> .gemini/skills/<skill> /")
+        typer.echo("4. Cursor                 -> .cursor/skills/<skill> /")
+        typer.echo()
+        selected = typer.prompt("Choice", type=str, default=ide_choice or "1")
+        ide_dir = get_ide_dir(selected)
+
+        # Rebuild target paths with new ide_dir
+        target_paths = []
+        for skill in skills:
+            target_path = Path(ide_dir) / skill["install"]["target_path"]
+            target_paths.append(str(ctx.project_root / target_path))
+
+        typer.echo()
         typer.echo("Skill(s) will be installed to:")
         for path in target_paths:
             typer.echo(f"  {path}")
@@ -135,7 +161,7 @@ def _add_impl(
     # Fetch each skill directory from GitHub
     installed: list[str] = []
     for skill in skills:
-        target_path = Path(".agents/skills") / skill["install"]["target_path"]
+        target_path = Path(ide_dir) / skill["install"]["target_path"]
         installed.extend(
             fetch_skill_directory(
                 repo_url=source["repo"],
@@ -176,6 +202,11 @@ def add_skill(
     as_json: bool = typer.Option(False, "--json", help="Output JSON"),
     remote: bool = typer.Option(True, "--remote/--local"),
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation"),
+    ide: str | None = typer.Option(
+        None,
+        "--ide",
+        help="IDE choice: 1 (default), 2 (claude), 3 (gemini), 4 (cursor)",
+    ),
 ) -> None:
     """Add or update one skill (or all)."""
     try:
@@ -187,6 +218,7 @@ def add_skill(
             as_json=as_json,
             use_remote=remote,
             skip_confirm=yes,
+            ide_choice=ide,
         )
     except CliError as exc:
         typer.secho(str(exc), fg=typer.colors.RED, err=True)
@@ -202,6 +234,7 @@ def install_alias(
     as_json: bool = typer.Option(False, "--json"),
     remote: bool = typer.Option(True, "--remote/--local"),
     yes: bool = typer.Option(False, "--yes", "-y"),
+    ide: str | None = typer.Option(None, "--ide"),
 ) -> None:
     """Alias for add."""
     add_skill(
@@ -212,6 +245,7 @@ def install_alias(
         as_json=as_json,
         remote=remote,
         yes=yes,
+        ide=ide,
     )
 
 
@@ -223,6 +257,7 @@ def sync_alias(
     as_json: bool = typer.Option(False, "--json"),
     remote: bool = typer.Option(True, "--remote/--local"),
     yes: bool = typer.Option(False, "--yes", "-y"),
+    ide: str | None = typer.Option(None, "--ide"),
 ) -> None:
     """Alias for add all."""
     add_skill(
@@ -233,6 +268,7 @@ def sync_alias(
         as_json=as_json,
         remote=remote,
         yes=yes,
+        ide=ide,
     )
 
 
@@ -244,10 +280,17 @@ def update_alias(
     as_json: bool = typer.Option(False, "--json"),
     remote: bool = typer.Option(True, "--remote/--local"),
     yes: bool = typer.Option(False, "--yes", "-y"),
+    ide: str | None = typer.Option(None, "--ide"),
 ) -> None:
     """Alias for sync."""
     sync_alias(
-        registry=registry, target_root=target_root, dry_run=dry_run, as_json=as_json, remote=remote, yes=yes
+        registry=registry,
+        target_root=target_root,
+        dry_run=dry_run,
+        as_json=as_json,
+        remote=remote,
+        yes=yes,
+        ide=ide,
     )
 
 

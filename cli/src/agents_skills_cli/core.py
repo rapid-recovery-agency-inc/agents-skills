@@ -18,6 +18,34 @@ class RegistrySource(Enum):
 
 PRIMARY_LANGUAGES = {"python", "node", "bash", "multi", "other"}
 
+IDE_DIR_MAP = {
+    "default": ".agents/skills",
+    "claude": ".claude/skills",
+    "gemini": ".gemini/skills",
+    "cursor": ".cursor/skills",
+}
+
+
+def get_ide_dir(ide_choice: str | None) -> str:
+    """Get the skills directory path for the selected IDE.
+
+    Args:
+        ide_choice: IDE choice string (None, "1", "2", "3", "4", "claude", "gemini", "cursor")
+
+    Returns:
+        The directory path for the selected IDE
+
+    """
+    if not ide_choice or ide_choice == "1":
+        return IDE_DIR_MAP["default"]
+    if ide_choice == "2":
+        return IDE_DIR_MAP["claude"]
+    if ide_choice == "3":
+        return IDE_DIR_MAP["gemini"]
+    if ide_choice == "4":
+        return IDE_DIR_MAP["cursor"]
+    return IDE_DIR_MAP.get(ide_choice, IDE_DIR_MAP["default"])
+
 
 class CliError(RuntimeError):
     """Raised for expected, user-facing CLI errors."""
@@ -103,9 +131,7 @@ def load_registry(ctx: RegistryContext) -> dict[str, Any]:
         isinstance(tag, str) for tag in tag_vocabulary
     ):
         path_str = str(ctx.tag_vocab_path) if ctx.tag_vocab_path else "remote"
-        raise CliError(
-            f"tags.vocab.json must be a JSON array of strings: {path_str}"
-        )
+        raise CliError(f"tags.vocab.json must be a JSON array of strings: {path_str}")
 
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(registry), key=lambda e: list(e.path))
@@ -174,7 +200,9 @@ def ensure_submodule(
     full_path = project_root / submodule_path
 
     # Check if submodule is already tracked
-    submodule_exists = full_path.exists() and ((full_path / ".git").exists() or any(full_path.iterdir()))
+    submodule_exists = full_path.exists() and (
+        (full_path / ".git").exists() or any(full_path.iterdir())
+    )
 
     if not submodule_exists:
         actions.append(
@@ -258,7 +286,7 @@ def fetch_skill_directory(
         # Calculate relative path within the skill directory
         rel_path = file_info["path"]
         if rel_path.startswith(base_path + "/"):
-            rel_path = rel_path[len(base_path) + 1:]
+            rel_path = rel_path[len(base_path) + 1 :]
 
         # Local file path
         local_file = full_target / rel_path

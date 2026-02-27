@@ -9,9 +9,7 @@ import httpx
 from . import __version__
 
 
-GITHUB_RAW_BASE = (
-    "https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/refs/heads/main/cli"
-)
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/refs/heads/main/cli"
 
 DEFAULT_TIMEOUT = httpx.Timeout(10.0, read=30.0)
 
@@ -73,7 +71,9 @@ def fetch_registry() -> dict[str, Any]:
     try:
         return fetch_json(f"{GITHUB_RAW_BASE}/registry.json")
     except httpx.HTTPStatusError as exc:
-        raise CliError(f"Failed to fetch registry (HTTP {exc.response.status_code})") from exc
+        raise CliError(
+            f"Failed to fetch registry (HTTP {exc.response.status_code})"
+        ) from exc
     except httpx.ConnectError as exc:
         raise CliError("Cannot connect to GitHub (check network)") from exc
     except httpx.TimeoutException as exc:
@@ -89,7 +89,9 @@ def fetch_schema() -> dict[str, Any]:
     try:
         return fetch_json(f"{GITHUB_RAW_BASE}/registry.schema.json")
     except httpx.HTTPStatusError as exc:
-        raise CliError(f"Failed to fetch schema (HTTP {exc.response.status_code})") from exc
+        raise CliError(
+            f"Failed to fetch schema (HTTP {exc.response.status_code})"
+        ) from exc
     except httpx.ConnectError as exc:
         raise CliError("Cannot connect to GitHub (check network)") from exc
     except httpx.TimeoutException as exc:
@@ -105,7 +107,9 @@ def fetch_tags_vocab() -> list[str]:
     try:
         return fetch_json(f"{GITHUB_RAW_BASE}/tags.vocab.json")
     except httpx.HTTPStatusError as exc:
-        raise CliError(f"Failed to fetch tags vocab (HTTP {exc.response.status_code})") from exc
+        raise CliError(
+            f"Failed to fetch tags vocab (HTTP {exc.response.status_code})"
+        ) from exc
     except httpx.ConnectError as exc:
         raise CliError("Cannot connect to GitHub (check network)") from exc
     except httpx.TimeoutException as exc:
@@ -128,7 +132,9 @@ def fetch_version() -> str | None:
         return None
 
 
-def fetch_directory_contents(owner: str, repo: str, path: str, ref: str) -> list[dict[str, Any]]:
+def fetch_directory_contents(
+    owner: str, repo: str, path: str, ref: str
+) -> list[dict[str, Any]]:
     """Fetch directory contents from GitHub API.
 
     Args:
@@ -155,7 +161,9 @@ def fetch_directory_contents(owner: str, repo: str, path: str, ref: str) -> list
     except httpx.HTTPStatusError as exc:
         if exc.response.status_code == NOT_FOUND:
             raise CliError(f"Directory not found: {path} (ref: {ref})") from exc
-        raise CliError(f"Failed to fetch directory (HTTP {exc.response.status_code})") from exc
+        raise CliError(
+            f"Failed to fetch directory (HTTP {exc.response.status_code})"
+        ) from exc
     except httpx.ConnectError as exc:
         raise CliError("Cannot connect to GitHub (check network)") from exc
     except httpx.TimeoutException as exc:
@@ -183,14 +191,18 @@ def fetch_file_content(url: str) -> bytes:
             response.raise_for_status()
             return response.content
         except httpx.HTTPStatusError as exc:
-            raise CliError(f"Failed to fetch file (HTTP {exc.response.status_code})") from exc
+            raise CliError(
+                f"Failed to fetch file (HTTP {exc.response.status_code})"
+            ) from exc
         except httpx.ConnectError as exc:
             raise CliError("Cannot connect to GitHub (check network)") from exc
         except httpx.TimeoutException as exc:
             raise CliError("Request timed out") from exc
 
 
-def fetch_directory_tree(owner: str, repo: str, path: str, ref: str) -> list[dict[str, Any]]:
+def fetch_directory_tree(
+    owner: str, repo: str, path: str, ref: str
+) -> list[dict[str, Any]]:
     """Recursively fetch all files in a directory tree.
 
     Args:
@@ -216,11 +228,13 @@ def fetch_directory_tree(owner: str, repo: str, path: str, ref: str) -> list[dic
                 _fetch_recursive(entry["path"])
             elif entry.get("type") == "file":
                 # Add file with its relative path from root
-                all_files.append({
-                    "path": entry["path"],
-                    "name": entry["name"],
-                    "download_url": entry.get("download_url"),
-                })
+                all_files.append(
+                    {
+                        "path": entry["path"],
+                        "name": entry["name"],
+                        "download_url": entry.get("download_url"),
+                    }
+                )
 
     _fetch_recursive(path)
     return all_files
