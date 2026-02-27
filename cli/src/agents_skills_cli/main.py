@@ -60,6 +60,7 @@ def list_skills(
     tag: list[str] | None = typer.Option(None, "--tag", help="Filter by tag (repeatable)"),
     as_json: bool = typer.Option(False, "--json", help="Output JSON"),
     remote: bool = typer.Option(True, "--remote/--local"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show full details"),
 ) -> None:
     """List skills from the registry."""
     try:
@@ -75,12 +76,20 @@ def list_skills(
             typer.echo("No matching skills found.")
             return
 
-        for skill in skills:
-            tags = ", ".join(skill.get("tags", []))
-            typer.echo(
-                f"{skill['id']} [{skill['primary_language']}] - {skill['description']}"
-            )
-            typer.echo(f"  category={skill['category']} tags={tags}")
+        if verbose:
+            for skill in sorted(skills, key=lambda s: s["id"]):
+                skill_name = skill["id"].split("/")[-1]
+                tags = skill.get("tags", [])
+                tag_str = " " + " ".join(f"[{tag}]" for tag in tags) if tags else ""
+                typer.echo(
+                    typer.style(skill_name, fg=typer.colors.BLUE) + tag_str
+                )
+                typer.echo(f"  {skill['description']}")
+                typer.echo()
+        else:
+            for skill in sorted(skills, key=lambda s: s["id"]):
+                skill_name = skill["id"].split("/")[-1]
+                typer.echo(skill_name)
     except CliError as exc:
         typer.secho(str(exc), fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from None
