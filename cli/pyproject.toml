@@ -26,8 +26,9 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "typer[all]>=0.12.0,<1.0.0",
-  "jsonschema>=4.21.1,<5.0.0",
+    "typer[all]>=0.12.0,<1.0.0",
+    "jsonschema>=4.21.1,<5.0.0",
+    "httpx>=0.27.0",
 ]
 
 [project.scripts]
@@ -58,6 +59,7 @@ classifiers = [
 python = ">=3.10"
 typer = {version = ">=0.12.0", extras = ["all"]}
 jsonschema = ">=4.21.1"
+httpx = ">=0.27.0"
 
 [tool.poetry.scripts]
 agents-skills = "agents_skills_cli.main:main"
@@ -124,7 +126,7 @@ exclude_lines = [
     "if typing.TYPE_CHECKING:",
     "@(abc\\.)?abstractmethod",
     "class .*\\(.*Protocol\\):",
-    "\\.\\.\\.",
+    "...",
 ]
 show_missing = true
 skip_covered = false

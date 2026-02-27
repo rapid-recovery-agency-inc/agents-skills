@@ -3,11 +3,17 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from enum import Enum
 from typing import Any
 from pathlib import Path
 from dataclasses import dataclass
 
 from jsonschema import Draft202012Validator
+
+
+class RegistrySource(Enum):
+    LOCAL = "local"
+    REMOTE = "remote"
 
 
 PRIMARY_LANGUAGES = {"python", "node", "bash", "multi", "other"}
@@ -19,17 +25,42 @@ class CliError(RuntimeError):
 
 @dataclass(frozen=True)
 class RegistryContext:
-    registry_path: Path
-    schema_path: Path
-    tag_vocab_path: Path
+    registry_path: Path | None
+    schema_path: Path | None
+    tag_vocab_path: Path | None
     project_root: Path
+    source: RegistrySource
 
 
 def resolve_paths(
-    registry: str | None, project_root: Path | None = None
+    registry: str | None,
+    project_root: Path | None = None,
+    use_remote: bool = True,
 ) -> RegistryContext:
     root = (project_root or Path.cwd()).resolve()
-    registry_path = Path(registry).resolve() if registry else root / "registry.json"
+
+    if registry:
+        registry_path = Path(registry).resolve()
+        schema_path = registry_path.parent / "registry.schema.json"
+        tag_vocab_path = registry_path.parent / "tags.vocab.json"
+        return RegistryContext(
+            registry_path=registry_path,
+            schema_path=schema_path,
+            tag_vocab_path=tag_vocab_path,
+            project_root=root,
+            source=RegistrySource.LOCAL,
+        )
+
+    if use_remote:
+        return RegistryContext(
+            registry_path=None,
+            schema_path=None,
+            tag_vocab_path=None,
+            project_root=root,
+            source=RegistrySource.REMOTE,
+        )
+
+    registry_path = root / "registry.json"
     schema_path = registry_path.parent / "registry.schema.json"
     tag_vocab_path = registry_path.parent / "tags.vocab.json"
     return RegistryContext(
@@ -37,6 +68,7 @@ def resolve_paths(
         schema_path=schema_path,
         tag_vocab_path=tag_vocab_path,
         project_root=root,
+        source=RegistrySource.LOCAL,
     )
 
 
@@ -50,19 +82,29 @@ def load_json(path: Path) -> Any:
 
 
 def load_registry(ctx: RegistryContext) -> dict[str, Any]:
-    registry = load_json(ctx.registry_path)
-    schema = load_json(ctx.schema_path)
-    tag_vocabulary = load_json(ctx.tag_vocab_path)
+    if ctx.source == RegistrySource.REMOTE:
+        from . import http_client  # noqa: PLC0415
+
+        registry = http_client.fetch_registry()
+        schema = http_client.fetch_schema()
+        tag_vocabulary = http_client.fetch_tags_vocab()
+    else:
+        registry = load_json(ctx.registry_path)
+        schema = load_json(ctx.schema_path)
+        tag_vocabulary = load_json(ctx.tag_vocab_path)
 
     if not isinstance(registry, dict):
-        raise CliError(f"registry.json must be a JSON object: {ctx.registry_path}")
+        path_str = str(ctx.registry_path) if ctx.registry_path else "remote"
+        raise CliError(f"registry.json must be a JSON object: {path_str}")
     if not isinstance(schema, dict):
-        raise CliError(f"registry.schema.json must be a JSON object: {ctx.schema_path}")
+        path_str = str(ctx.schema_path) if ctx.schema_path else "remote"
+        raise CliError(f"registry.schema.json must be a JSON object: {path_str}")
     if not isinstance(tag_vocabulary, list) or not all(
         isinstance(tag, str) for tag in tag_vocabulary
     ):
+        path_str = str(ctx.tag_vocab_path) if ctx.tag_vocab_path else "remote"
         raise CliError(
-            f"tags.vocab.json must be a JSON array of strings: {ctx.tag_vocab_path}"
+            f"tags.vocab.json must be a JSON array of strings: {path_str}"
         )
 
     validator = Draft202012Validator(schema)

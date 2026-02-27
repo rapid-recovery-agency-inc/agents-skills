@@ -29,8 +29,14 @@ uvx --from "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@m
 ## Quick Start
 
 ```bash
-# List available skills
+# Show version
+agents-skills --version
+
+# List available skills (fetches from remote by default)
 agents-skills list
+
+# Use local registry instead
+agents-skills list --local
 
 # Search for skills
 agents-skills list python fastapi
@@ -91,14 +97,46 @@ agents-skills add skill-creator --dry-run
 
 ## Global Flags
 
-- `--registry <path>`: Override registry.json location
+- `--version`, `-v`: Show version information
+- `--remote` / `--local`: Use remote registry (default) or local files
+- `--registry <path>`: Override registry.json location (forces local mode)
 - `--target-root <path>`: Override destination root (default: `.agents`)
 - `--dry-run`: Show actions without writing
 - `--json`: Machine-readable output
 
+## Registry
+
+By default, the CLI fetches the registry from GitHub. This means you can run `agents-skills list` from any directory without needing local registry files.
+
+### Remote Registry (Default)
+
+The CLI fetches registry files from:
+
+- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/cli/registry.json`
+- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/cli/registry.schema.json`
+- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/cli/tags.vocab.json`
+
+### Local Registry
+
+Use `--local` to use local registry files instead:
+
+```bash
+agents-skills list --local
+agents-skills add create-agents-files --local
+```
+
+Or specify a custom registry path:
+
+```bash
+agents-skills list --registry /path/to/registry.json
+```
+
+**Note**: Using remote registry requires network access.
+
 ## How It Works
 
-1. Reads `registry.json` and validates against schema
+1. Fetches registry from GitHub (or uses local files with `--local`)
+1. Validates registry against schema
 1. Ensures git submodule exists and is updated
 1. Resolves skill by ID or short name
 1. Materializes skill to `.agents/skills/<target_path>/SKILL.md`

@@ -72,7 +72,7 @@ Based on the user interview, fill in these components:
 
 #### Anatomy of a Skill
 
-```
+````text
 skill-name/
 ├── SKILL.md (required)
 │   ├── YAML frontmatter (name, description required)
@@ -81,7 +81,7 @@ skill-name/
     ├── scripts/    - Executable code for deterministic/repetitive tasks
     ├── references/ - Docs loaded into context as needed
     └── assets/     - Files used in output (templates, icons, fonts)
-```
+```text
 
 #### Progressive Disclosure
 
@@ -101,14 +101,14 @@ These word counts are approximate and you can feel free to go longer if needed.
 
 **Domain organization**: When a skill supports multiple domains/frameworks, organize by variant:
 
-```
+```text
 cloud-deploy/
 ├── SKILL.md (workflow + selection)
 └── references/
     ├── aws.md
     ├── gcp.md
     └── azure.md
-```
+```text
 
 Claude reads only the relevant reference file.
 
@@ -122,23 +122,23 @@ Prefer using the imperative form in instructions.
 
 **Defining output formats** - You can do it like this:
 
-```markdown
+```textmarkdown
 ## Report structure
 ALWAYS use this exact template:
 # [Title]
 ## Executive summary
 ## Key findings
 ## Recommendations
-```
+```text
 
 **Examples pattern** - It's useful to include examples. You can format them like this (but if "Input" and "Output" are in the examples you might want to deviate a little):
 
-```markdown
+```textmarkdown
 ## Commit message format
 **Example 1:**
 Input: Added user authentication with JWT tokens
 Output: feat(auth): implement JWT-based authentication
-```
+```text
 
 ### Writing Style
 
@@ -150,7 +150,7 @@ After writing the skill draft, come up with 2-3 realistic test prompts — the k
 
 Save test cases to `evals/evals.json`. Don't write assertions yet — just the prompts. You'll draft assertions in the next step while the runs are in progress.
 
-```json
+```textjson
 {
   "skill_name": "example-skill",
   "evals": [
@@ -162,7 +162,7 @@ Save test cases to `evals/evals.json`. Don't write assertions yet — just the p
     }
   ]
 }
-```
+```text
 
 See `references/schemas.md` for the full schema (including the `assertions` field, which you'll add later).
 
@@ -178,14 +178,14 @@ For each test case, spawn two subagents in the same turn — one with the skill,
 
 **With-skill run:**
 
-```
+```text
 Execute this task:
 - Skill path: <path-to-skill>
 - Task: <eval prompt>
 - Input files: <eval files if any, or "none">
 - Save outputs to: <workspace>/iteration-<N>/eval-<ID>/with_skill/outputs/
 - Outputs to save: <what the user cares about — e.g., "the .docx file", "the final CSV">
-```
+```text
 
 **Baseline run** (same prompt, but the baseline depends on context):
 
@@ -194,14 +194,14 @@ Execute this task:
 
 Write an `eval_metadata.json` for each test case (assertions can be empty for now). Give each eval a descriptive name based on what it's testing — not just "eval-0". Use this name for the directory too. If this iteration uses new or modified eval prompts, create these files for each new eval directory — don't assume they carry over from previous iterations.
 
-```json
+```textjson
 {
   "eval_id": 0,
   "eval_name": "descriptive-name-here",
   "prompt": "The user's task prompt",
   "assertions": []
 }
-```
+```text
 
 ### Step 2: While runs are in progress, draft assertions
 
@@ -215,13 +215,13 @@ Update the `eval_metadata.json` files and `evals/evals.json` with the assertions
 
 When each subagent task completes, you receive a notification containing `total_tokens` and `duration_ms`. Save this data immediately to `timing.json` in the run directory:
 
-```json
+```textjson
 {
   "total_tokens": 84852,
   "duration_ms": 23332,
   "total_duration_seconds": 23.3
 }
-```
+```text
 
 This is the only opportunity to capture this data — it comes through the task notification and isn't persisted elsewhere. Process each notification as it arrives rather than trying to batch them.
 
@@ -231,31 +231,33 @@ Once all runs are done:
 
 1. **Grade each run** — spawn a grader subagent (or grade inline) that reads `agents/grader.md` and evaluates each assertion against the outputs. Save results to `grading.json` in each run directory. The grading.json expectations array must use the fields `text`, `passed`, and `evidence` (not `name`/`met`/`details` or other variants) — the viewer depends on these exact field names. For assertions that can be checked programmatically, write and run a script rather than eyeballing it — scripts are faster, more reliable, and can be reused across iterations.
 
-1. **Aggregate into benchmark** — run the aggregation script from the skill-creator directory:
+2. **Aggregate into benchmark** — run the aggregation script from the skill-creator directory:
 
-   ```bash
+   ```textbash
    python -m scripts.aggregate_benchmark <workspace>/iteration-N --skill-name <name>
-   ```
+````
 
-   This produces `benchmark.json` and `benchmark.md` with pass_rate, time, and tokens for each configuration, with mean ± stddev and the delta. If generating benchmark.json manually, see `references/schemas.md` for the exact schema the viewer expects.
-   Put each with_skill version before its baseline counterpart.
+This produces `benchmark.json` and `benchmark.md` with pass_rate, time, and tokens for each configuration, with mean ± stddev and the delta. If generating benchmark.json manually, see `references/schemas.md` for the exact schema the viewer expects.
+Put each with_skill version before its baseline counterpart.
 
-1. **Do an analyst pass** — read the benchmark data and surface patterns the aggregate stats might hide. See `agents/analyzer.md` (the "Analyzing Benchmark Results" section) for what to look for — things like assertions that always pass regardless of skill (non-discriminating), high-variance evals (possibly flaky), and time/token tradeoffs.
+3. **Do an analyst pass** — read the benchmark data and surface patterns the aggregate stats might hide. See `agents/analyzer.md` (the "Analyzing Benchmark Results" section) for what to look for — things like assertions that always pass regardless of skill (non-discriminating), high-variance evals (possibly flaky), and time/token tradeoffs.
 
 1. **Launch the viewer** with both qualitative outputs and quantitative data:
 
-   ```bash
+   ````textbash
    nohup python <skill-creator-path>/eval-viewer/generate_review.py \
      <workspace>/iteration-N \
      --skill-name "my-skill" \
      --benchmark <workspace>/iteration-N/benchmark.json \
      > /dev/null 2>&1 &
    VIEWER_PID=$!
-   ```
+   ```text
 
    For iteration 2+, also pass `--previous-workspace <workspace>/iteration-<N-1>`.
 
    **Cowork / headless environments:** If `webbrowser.open()` is not available or the environment has no display, use `--static <output_path>` to write a standalone HTML file instead of starting a server. Feedback will be downloaded as a `feedback.json` file when the user clicks "Submit All Reviews". After download, copy `feedback.json` into the workspace directory for the next iteration to pick up.
+
+   ````
 
 Note: please use generate_review.py to create the viewer; there's no need to write custom HTML.
 
@@ -280,7 +282,7 @@ Navigation is via prev/next buttons or arrow keys. When done, they click "Submit
 
 When the user tells you they're done, read `feedback.json`:
 
-```json
+````textjson
 {
   "reviews": [
     {
@@ -301,15 +303,15 @@ When the user tells you they're done, read `feedback.json`:
   ],
   "status": "complete"
 }
-```
+```text
 
 Empty feedback means the user thought it was fine. Focus your improvements on the test cases where the user had specific complaints.
 
 Kill the viewer server when you're done with it:
 
-```bash
+```textbash
 kill $VIEWER_PID 2>/dev/null
-```
+```text
 
 ______________________________________________________________________
 
@@ -363,7 +365,7 @@ The description field in SKILL.md frontmatter is the primary mechanism that dete
 
 Create 20 eval queries — a mix of should-trigger and should-not-trigger. Save as JSON:
 
-```json
+```textjson
 [
   {
     "query": "the user prompt",
@@ -374,7 +376,7 @@ Create 20 eval queries — a mix of should-trigger and should-not-trigger. Save 
     "should_trigger": false
   }
 ]
-```
+```text
 
 The queries must be realistic and something a Claude Code or Claude.ai user would actually type. Not abstract requests, but requests that are concrete and specific and have a good amount of detail. For instance, file paths, personal context about the user's job or situation, column names and values, company names, URLs. A little bit of backstory. Some might be in lowercase or contain abbreviations or typos or casual speech. Use a mix of different lengths, and focus on edge cases rather than making them clear-cut (the user will get a chance to sign off on them).
 
@@ -409,14 +411,14 @@ Tell the user: "This will take some time — I'll run the optimization loop in t
 
 Save the eval set to the workspace, then run in the background:
 
-```bash
+```textbash
 python -m scripts.run_loop \
   --eval-set <path-to-trigger-eval.json> \
   --skill-path <path-to-skill> \
   --model <model-id-powering-this-session> \
   --max-iterations 5 \
   --verbose
-```
+```text
 
 Use the model ID from your system prompt (the one powering the current session) so the triggering test matches what the user actually experiences.
 
@@ -440,9 +442,9 @@ ______________________________________________________________________
 
 Check whether you have access to the `present_files` tool. If you don't, skip this step. If you do, package the skill and present the .skill file to the user:
 
-```bash
+```textbash
 python -m scripts.package_skill <path/to/skill-folder>
-```
+```text
 
 After packaging, direct the user to the resulting `.skill` file path so they can install it.
 
@@ -509,3 +511,4 @@ Repeating one more time the core loop here for emphasis:
 Please add steps to your TodoList, if you have such a thing, to make sure you don't forget. If you're in Cowork, please specifically put "Create evals JSON and run `eval-viewer/generate_review.py` so human can review test cases" in your TodoList to make sure it happens.
 
 Good luck!
+````

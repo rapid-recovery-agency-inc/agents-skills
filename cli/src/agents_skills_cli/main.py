@@ -5,6 +5,7 @@ from pathlib import Path
 
 import typer
 
+from . import __version__
 from .core import (
     CliError,
     get_skill,
@@ -23,6 +24,16 @@ app = typer.Typer(
     rich_markup_mode="rich",
     help="Install and update agent skills from registry.json",
 )
+
+
+@app.callback()
+def main_callback(
+    version: bool = typer.Option(False, "--version", "-v", help="Show version"),
+    remote: bool = typer.Option(True, "--remote/--local", help="Use remote registry or local"),
+) -> None:
+    if version:
+        typer.echo(f"agents-skills {__version__}")
+        raise typer.Exit()
 
 
 def _print_json(payload: object) -> None:
@@ -48,10 +59,11 @@ def list_skills(
     registry: str | None = typer.Option(None, "--registry", help="Path to registry.json"),
     tag: list[str] | None = typer.Option(None, "--tag", help="Filter by tag (repeatable)"),
     as_json: bool = typer.Option(False, "--json", help="Output JSON"),
+    remote: bool = typer.Option(True, "--remote/--local"),
 ) -> None:
     """List skills from the registry."""
     try:
-        ctx = resolve_paths(registry=registry)
+        ctx = resolve_paths(registry=registry, use_remote=remote)
         data = load_registry(ctx)
         skills = filter_skills(data, queries=query or [], tags=tag or [])
 
@@ -81,9 +93,10 @@ def _add_impl(
     target_root: str | None,
     dry_run: bool,
     as_json: bool,
+    use_remote: bool = True,
 ) -> None:
     ensure_git_installed()
-    ctx = resolve_paths(registry=registry)
+    ctx = resolve_paths(registry=registry, use_remote=use_remote)
     data = load_registry(ctx)
 
     source = data["source"]
@@ -147,6 +160,7 @@ def add_skill(
         False, "--dry-run", help="Print actions without writing"
     ),
     as_json: bool = typer.Option(False, "--json", help="Output JSON"),
+    remote: bool = typer.Option(True, "--remote/--local"),
 ) -> None:
     """Add or update one skill (or all)."""
     try:
@@ -156,6 +170,7 @@ def add_skill(
             target_root=target_root,
             dry_run=dry_run,
             as_json=as_json,
+            use_remote=remote,
         )
     except CliError as exc:
         typer.secho(str(exc), fg=typer.colors.RED, err=True)
@@ -169,6 +184,7 @@ def install_alias(
     target_root: str | None = typer.Option(None, "--target-root"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     as_json: bool = typer.Option(False, "--json"),
+    remote: bool = typer.Option(True, "--remote/--local"),
 ) -> None:
     """Alias for add."""
     add_skill(
@@ -177,6 +193,7 @@ def install_alias(
         target_root=target_root,
         dry_run=dry_run,
         as_json=as_json,
+        remote=remote,
     )
 
 
@@ -186,6 +203,7 @@ def sync_alias(
     target_root: str | None = typer.Option(None, "--target-root"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     as_json: bool = typer.Option(False, "--json"),
+    remote: bool = typer.Option(True, "--remote/--local"),
 ) -> None:
     """Alias for add all."""
     add_skill(
@@ -194,6 +212,7 @@ def sync_alias(
         target_root=target_root,
         dry_run=dry_run,
         as_json=as_json,
+        remote=remote,
     )
 
 
@@ -203,10 +222,11 @@ def update_alias(
     target_root: str | None = typer.Option(None, "--target-root"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     as_json: bool = typer.Option(False, "--json"),
+    remote: bool = typer.Option(True, "--remote/--local"),
 ) -> None:
     """Alias for sync."""
     sync_alias(
-        registry=registry, target_root=target_root, dry_run=dry_run, as_json=as_json
+        registry=registry, target_root=target_root, dry_run=dry_run, as_json=as_json, remote=remote
     )
 
 
