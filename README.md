@@ -37,26 +37,19 @@ agents-skills sync
 
 ## Installation
 
-<details>
-<summary>Using pip (recommended)</summary>
+### Using pip (recommended)
 
 ```bash
 pip install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
 ```
 
-</details>
-
-<details>
-<summary>Using Poetry</summary>
+### Using Poetry
 
 ```bash
 poetry self add "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
 ```
 
-</details>
-
-<details>
-<summary>Using uv</summary>
+### Using uv
 
 ```bash
 # Install as a tool
@@ -65,8 +58,6 @@ uv tool install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.
 # Or run ephemerally
 uvx --from "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli" agents-skills list
 ```
-
-</details>
 
 ## Contributing
 

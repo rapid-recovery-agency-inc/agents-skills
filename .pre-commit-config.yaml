@@ -1,4 +1,5 @@
 # See https://pre-commit.com/#pre-commit-config.yaml for more information
+
 default_install_hook_types:
 - pre-commit
 - pre-push
@@ -7,34 +8,52 @@ default_stages:
 - pre-push
 
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-added-large-files
-        args: ["--maxkb=800"]
-    -   id: check-json
-    -   id: check-toml
-    -   id: check-merge-conflict
-    -   id: debug-statements
 
--   repo: https://github.com/hukkin/mdformat
-    rev: 0.7.22
-    hooks:
-    -   id: mdformat
-        additional_dependencies:
-          # Core extensions
-          - mdformat-gfm           # GitHub Flavored Markdown (tables, strikethrough, etc.)
-          - mdformat-frontmatter   # YAML/TOML front matter support
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
 
-          # Additional markdown syntax support
-          - mdformat-footnote      # Pandoc-style footnotes
-          - mdformat-deflist       # Pandoc-style definition lists
-          - mdformat-toc           # Table-of-contents extension
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-added-large-files
+    args: ["--maxkb=800"]
+  - id: check-json
+  - id: check-toml
+  - id: check-merge-conflict
+  - id: debug-statements
 
-          # Code formatters
-          - mdformat-black         # Python code formatting
-          - mdformat-web           # JavaScript, CSS, HTML, XML
-          - mdformat-config        # YAML, TOML, INI, config files
+- repo: https://github.com/hukkin/mdformat
+  rev: 0.7.22
+  hooks:
+
+  - id: mdformat
+    additional_dependencies:
+
+    # Core extensions
+
+    - mdformat-gfm # GitHub Flavored Markdown (tables, strikethrough, etc.)
+    - mdformat-frontmatter # YAML/TOML front matter support
+
+    # Additional markdown syntax support
+
+    - mdformat-footnote # Pandoc-style footnotes
+    - mdformat-deflist # Pandoc-style definition lists
+    - mdformat-toc # Table-of-contents extension
+
+    # Code formatters
+
+    - mdformat-black # Python code formatting
+    - mdformat-web # JavaScript, CSS, HTML, XML
+    - mdformat-config # YAML, TOML, INI, config files
+
+- repo: local
+  hooks:
+
+  - id: update-version-json
+    name: Update version.json from pyproject.toml
+    entry: python scripts/update-version-number.py
+    language: system
+    stages: [pre-push]
+    always_run: true
+    pass_filenames: false
