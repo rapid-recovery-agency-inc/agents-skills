@@ -14,6 +14,7 @@
       "name": "create-agents-files",
       "description": "Create and maintain hierarchical AGENTS.md documentation from real package structure, dependencies, and call-site evidence. Use for any request to create or update an agents file, AGENTS.md, agents.md, or AGENTS hierarchy.",
       "category": "generic",
+      "primary_language": "multi",
       "source_path": "skills/generic/create-agents-files",
       "entrypoint": "SKILL.md",
       "version": "0.1.0",
@@ -23,13 +24,16 @@
       },
       "compatibility": "Designed for agent runtimes that support Agent Skills and repository file editing.",
       "tags": ["agents", "documentation", "repo-structure"],
-      "status": "active"
+      "status": "active",
+      "added_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
     },
     {
       "id": "generic/skill-creator",
       "name": "skill-creator",
       "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
       "category": "generic",
+      "primary_language": "multi",
       "source_path": "skills/generic/skill-creator",
       "entrypoint": "SKILL.md",
       "version": "0.1.0",
@@ -38,7 +42,9 @@
         "link_mode": "symlink"
       },
       "tags": ["evaluation", "optimization", "skill-authoring"],
-      "status": "active"
+      "status": "active",
+      "added_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
     }
   ]
 }

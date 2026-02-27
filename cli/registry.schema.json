@@ -52,10 +52,13 @@
           "name",
           "description",
           "category",
+          "primary_language",
           "source_path",
           "entrypoint",
           "version",
-          "install"
+          "install",
+          "added_at",
+          "updated_at"
         ],
         "properties": {
           "id": {
@@ -74,6 +77,10 @@
           "category": {
             "type": "string",
             "pattern": "^[a-z0-9-]+$"
+          },
+          "primary_language": {
+            "type": "string",
+            "enum": ["python", "node", "bash", "multi", "other"]
           },
           "source_path": {
             "type": "string",
@@ -117,6 +124,14 @@
           "status": {
             "type": "string",
             "enum": ["active", "experimental", "deprecated"]
+          },
+          "added_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

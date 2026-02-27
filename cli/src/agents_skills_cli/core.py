@@ -1,0 +1,221 @@
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+from typing import Any
+from pathlib import Path
+from dataclasses import dataclass
+
+from jsonschema import Draft202012Validator
+
+
+PRIMARY_LANGUAGES = {"python", "node", "bash", "multi", "other"}
+
+
+class CliError(RuntimeError):
+    """Raised for expected, user-facing CLI errors."""
+
+
+@dataclass(frozen=True)
+class RegistryContext:
+    registry_path: Path
+    schema_path: Path
+    tag_vocab_path: Path
+    project_root: Path
+
+
+def resolve_paths(
+    registry: str | None, project_root: Path | None = None
+) -> RegistryContext:
+    root = (project_root or Path.cwd()).resolve()
+    registry_path = Path(registry).resolve() if registry else root / "registry.json"
+    schema_path = registry_path.parent / "registry.schema.json"
+    tag_vocab_path = registry_path.parent / "tags.vocab.json"
+    return RegistryContext(
+        registry_path=registry_path,
+        schema_path=schema_path,
+        tag_vocab_path=tag_vocab_path,
+        project_root=root,
+    )
+
+
+def load_json(path: Path) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise CliError(f"Missing file: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise CliError(f"Invalid JSON in {path}: {exc}") from exc
+
+
+def load_registry(ctx: RegistryContext) -> dict[str, Any]:
+    registry = load_json(ctx.registry_path)
+    schema = load_json(ctx.schema_path)
+    tag_vocabulary = load_json(ctx.tag_vocab_path)
+
+    if not isinstance(registry, dict):
+        raise CliError(f"registry.json must be a JSON object: {ctx.registry_path}")
+    if not isinstance(schema, dict):
+        raise CliError(f"registry.schema.json must be a JSON object: {ctx.schema_path}")
+    if not isinstance(tag_vocabulary, list) or not all(
+        isinstance(tag, str) for tag in tag_vocabulary
+    ):
+        raise CliError(
+            f"tags.vocab.json must be a JSON array of strings: {ctx.tag_vocab_path}"
+        )
+
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(registry), key=lambda e: list(e.path))
+    if errors:
+        formatted = "; ".join(
+            f"{'/'.join(str(p) for p in err.path) or '<root>'}: {err.message}"
+            for err in errors[:5]
+        )
+        raise CliError(f"registry.json failed schema validation: {formatted}")
+
+    _validate_language_and_tags(registry, set(tag_vocabulary))
+    return registry
+
+
+def _validate_language_and_tags(
+    registry: dict[str, Any], allowed_tags: set[str]
+) -> None:
+    if not allowed_tags:
+        raise CliError("tags.vocab.json must define at least one tag")
+
+    for skill in registry.get("skills", []):
+        lang = skill.get("primary_language")
+        if lang not in PRIMARY_LANGUAGES:
+            raise CliError(
+                f"Skill '{skill.get('id')}' has invalid primary_language '{lang}'. "
+                f"Allowed: {', '.join(sorted(PRIMARY_LANGUAGES))}"
+            )
+
+        tags = skill.get("tags", [])
+        unknown = [tag for tag in tags if tag not in allowed_tags]
+        if unknown:
+            raise CliError(
+                f"Skill '{skill.get('id')}' has tags outside tag_vocabulary: {', '.join(unknown)}"
+            )
+
+
+def ensure_git_installed() -> None:
+    if shutil.which("git") is None:
+        raise CliError("git is required. Install git and retry.")
+
+
+def run_git(args: list[str], project_root: Path, dry_run: bool = False) -> str:
+    cmd = ["git", *args]
+    if dry_run:
+        return "$ " + " ".join(cmd)
+
+    proc = subprocess.run(
+        cmd,
+        cwd=str(project_root),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        stderr = proc.stderr.strip() or proc.stdout.strip() or "unknown git error"
+        raise CliError(f"git command failed ({' '.join(cmd)}): {stderr}")
+    return proc.stdout.strip()
+
+
+def ensure_submodule(
+    repo_url: str, submodule_path: Path, ref: str, project_root: Path, dry_run: bool
+) -> list[str]:
+    actions: list[str] = []
+    rel_path = str(submodule_path)
+
+    if not (project_root / submodule_path).exists():
+        actions.append(
+            run_git(
+                ["submodule", "add", "-b", ref, repo_url, rel_path],
+                project_root,
+                dry_run=dry_run,
+            )
+        )
+
+    actions.append(
+        run_git(
+            ["submodule", "update", "--init", "--remote", rel_path],
+            project_root,
+            dry_run=dry_run,
+        )
+    )
+    return [a for a in actions if a]
+
+
+def materialize_skill(
+    *,
+    source_file: Path,
+    target_file: Path,
+    link_mode: str,
+    project_root: Path,
+    dry_run: bool,
+) -> str:
+    src = project_root / source_file
+    dst = project_root / target_file
+
+    if dry_run:
+        if not src.exists():
+            return f"Would create {dst.parent} (source missing: {src})"
+        return f"Would materialize {src} -> {dst} ({link_mode})"
+
+    if not src.exists():
+        raise CliError(f"Skill source does not exist: {src}")
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.exists() or dst.is_symlink():
+        if dst.is_dir() and not dst.is_symlink():
+            shutil.rmtree(dst)
+        else:
+            dst.unlink()
+
+    if link_mode == "symlink":
+        dst.symlink_to(src)
+    elif link_mode == "copy":
+        shutil.copy2(src, dst)
+    else:
+        raise CliError(f"Unsupported link_mode: {link_mode}")
+
+    return f"Installed {target_file}"
+
+
+def get_skill(registry: dict[str, Any], skill_id: str) -> dict[str, Any]:
+    # Try exact ID match first
+    for skill in registry.get("skills", []):
+        if skill.get("id") == skill_id:
+            return skill
+
+    # Try short name match (last part after slash)
+    for skill in registry.get("skills", []):
+        if skill.get("id").split("/")[-1] == skill_id:
+            return skill
+
+    raise CliError(f"Unknown skill id or short name: {skill_id}")
+
+
+def filter_skills(
+    registry: dict[str, Any], queries: list[str], tags: list[str]
+) -> list[dict[str, Any]]:
+    skills = registry.get("skills", [])
+    if tags:
+        skills = [s for s in skills if set(tags).issubset(set(s.get("tags", [])))]
+
+    for query in queries:
+        q = query.lower()
+        skills = [
+            s
+            for s in skills
+            if q in s.get("id", "").lower()
+            or q in s.get("name", "").lower()
+            or q in s.get("category", "").lower()
+            or q in s.get("description", "").lower()
+            or q in s.get("primary_language", "").lower()
+            or any(q in t.lower() for t in s.get("tags", []))
+        ]
+
+    return skills

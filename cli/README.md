@@ -1,63 +1,127 @@
 # agents-skills CLI
 
-Lightweight CLI for consuming skills from this registry with a low-friction workflow.
+Ergonomic CLI for installing and updating agent skills from a centralized registry.
 
-## DevEx goals
+## Installation
 
-- Fast happy path (one command to add a skill)
-- Predictable commands/flags
-- Safe defaults + clear error messages
-- Human-readable output by default, `--json` for automation
-
-## Command surface (v0)
+### Using pip
 
 ```bash
-agents-skills list [query]
-agents-skills add <skill-id> [--mode symlink|copy]
-agents-skills remove <skill-id>
-agents-skills sync
-agents-skills doctor
+pip install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
 ```
 
-Aliases:
-
-- `install` -> `add`
-- `update` -> `sync`
-
-## Quick start
+### Using Poetry
 
 ```bash
-# 1) See available skills
+poetry self add "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
+```
+
+### Using uv
+
+```bash
+# Install as a tool
+uv tool install "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli"
+
+# Or run ephemerally
+uvx --from "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@main#subdirectory=cli" agents-skills list
+```
+
+## Quick Start
+
+```bash
+# List available skills
 agents-skills list
 
-# 2) Install one skill into your project
-agents-skills add generic/skill-creator
+# Search for skills
+agents-skills list python fastapi
 
-# 3) Pull latest registry submodule updates and re-materialize links/copies
-agents-skills sync
+# Add a skill to your project
+agents-skills add create-agents-files
+
+# Add all skills
+agents-skills add all
+
+# Use hidden aliases
+agents-skills sync  # same as: agents-skills add all
 ```
 
-## Install contract (submodule mode)
+## Commands
 
-When running `agents-skills add <skill-id>`, the CLI should:
+### `list [term ...]`
 
-1. Read `registry.json` and validate against `registry.schema.json`.
-1. Resolve top-level `source` (`repo`, `default_ref`, `submodule_path`, `skills_root`).
-1. Ensure submodule exists/updated at `source.submodule_path`.
-1. Resolve skill by exact `skills[].id`.
-1. Build source from `<submodule_path>/<skills[].source_path>/<skills[].entrypoint>`.
-1. Materialize to `.agents/skills/<skills[].install.target_path>` via `skills[].install.link_mode`.
+List skills from the registry with optional filtering.
 
-## Recommended global flags
+```bash
+# List all skills
+agents-skills list
 
-- `--project-root <path>`: run from any directory
-- `--registry <path>`: override registry location
-- `--dry-run`: show actions without writing
-- `--json`: machine-readable output
-- `--yes`: non-interactive confirmation
+# Filter by multiple terms (intersection)
+agents-skills list create agents
 
-## Error model
+# Filter by tag
+agents-skills list --tag documentation
 
-- Non-zero exit code on failure.
-- Clear reason + next action (for example, missing skill id, invalid schema, git/submodule failure).
-- `doctor` should diagnose common setup issues and print exact fix commands.
+# JSON output
+agents-skills list --json
+```
+
+### `add <skill-id|short-name|all>`
+
+Add or update skills. Supports short names (e.g., `skill-creator` instead of `generic/skill-creator`).
+
+```bash
+# Add by full ID
+agents-skills add generic/create-agents-files
+
+# Add by short name
+agents-skills add create-agents-files
+
+# Add all skills
+agents-skills add all
+
+# Dry run
+agents-skills add skill-creator --dry-run
+```
+
+### Hidden Aliases
+
+- `install <skill-id>` → `add <skill-id>`
+- `sync` → `add all`
+- `update` → `add all`
+
+## Global Flags
+
+- `--registry <path>`: Override registry.json location
+- `--target-root <path>`: Override destination root (default: `.agents`)
+- `--dry-run`: Show actions without writing
+- `--json`: Machine-readable output
+
+## How It Works
+
+1. Reads `registry.json` and validates against schema
+1. Ensures git submodule exists and is updated
+1. Resolves skill by ID or short name
+1. Materializes skill to `.agents/skills/<target_path>/SKILL.md`
+1. Uses symlink or copy based on registry configuration
+
+## Development
+
+```bash
+# Install dev dependencies
+cd cli
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install -e .
+pip install ruff black mypy pytest
+
+# Run linting
+ruff check src/
+mypy src/agents_skills_cli/
+
+# Format code
+ruff format src/
+```
+
+## License
+
+Apache-2.0
