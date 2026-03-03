@@ -45,6 +45,25 @@
       "status": "active",
       "added_at": "2024-01-01T00:00:00Z",
       "updated_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "python/create-py-project",
+      "name": "create-py-project",
+      "description": "Create, set up, bootstrap, or scaffold modern Python projects with best-in-class tooling. Use when users want to initialize Python projects, create FastAPI apps, build CLI tools, or set up project tooling (poetry, uv, ruff, mypy, pytest, pre-commit).",
+      "category": "python",
+      "primary_language": "python",
+      "source_path": "skills/python/create-py-project",
+      "entrypoint": "SKILL.md",
+      "version": "0.1.0",
+      "install": {
+        "target_path": "create-py-project",
+        "link_mode": "symlink"
+      },
+      "compatibility": "Designed for agent runtimes that support Agent Skills and repository file editing.",
+      "tags": ["backend", "development", "cli", "api", "microservice"],
+      "status": "active",
+      "added_at": "2026-03-03T15:17:00Z",
+      "updated_at": "2026-03-03T15:17:00Z"
     }
   ]
 }
