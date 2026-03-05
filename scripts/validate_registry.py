@@ -30,6 +30,10 @@ def main() -> int:
         print(f"Error: Invalid YAML in {registry_path}: {e}")
         return 1
 
+    if not isinstance(registry, dict):
+        print(f"Error: Registry must be a dictionary, got {type(registry).__name__}")
+        return 1
+
     schema = registry.get("schema")
     if not schema:
         print("Error: No embedded schema found in registry.yaml")

@@ -53,4 +53,4 @@ pip install -e .  # version comes from pyproject.toml
 agents-skills --version
 ```
 
-To bump version: edit `version` in `cli/pyproject.toml` (both `[project]` and `[tool.poetry]` sections).
+To bump version: edit the `version` field in the `[project]` section of `cli/pyproject.toml`.

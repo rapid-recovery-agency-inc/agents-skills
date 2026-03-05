@@ -7,19 +7,19 @@ source:
   skills_root: skills
 tags_vocab:
   - agents
-  - documentation
-  - repo-structure
-  - evaluation
-  - optimization
-  - skill-authoring
-  - backend
-  - development
-  - cli
   - api
-  - microservice
+  - backend
+  - cli
   - configuration
-  - environment
+  - development
+  - documentation
   - env-vars
+  - environment
+  - evaluation
+  - microservice
+  - optimization
+  - repo-structure
+  - skill-authoring
 
 schema:
   $schema: "https://json-schema.org/draft/2020-12/schema"

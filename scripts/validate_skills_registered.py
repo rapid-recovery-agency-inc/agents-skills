@@ -7,9 +7,9 @@ from pathlib import Path
 import yaml
 
 
-def find_skills() -> set[str]:
+def find_skills(repo_root: Path) -> set[str]:
     """Find all skills by scanning for SKILL.md files."""
-    skills_dir = Path("skills")
+    skills_dir = repo_root / "skills"
     if not skills_dir.exists():
         return set()
 
@@ -71,7 +71,7 @@ def main() -> int:
 
     registry_path = repo_root / "skills" / "registry.yaml"
 
-    all_skills = find_skills()
+    all_skills = find_skills(repo_root)
     registered_skills = get_registered_skills(registry_path)
 
     unregistered = all_skills - registered_skills

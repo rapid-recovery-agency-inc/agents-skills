@@ -88,7 +88,7 @@ def resolve_paths(
 
     # Default: look for registry.yaml in skills/ subdirectory
     registry_path = root / "skills" / "registry.yaml"
-    schema_path = root / "cli" / "registry.schema.json"
+    schema_path = None  # Schema is embedded in registry.yaml
     return RegistryContext(
         registry_path=registry_path,
         schema_path=schema_path,
