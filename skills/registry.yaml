@@ -1,0 +1,238 @@
+schema_version: "1.0.0"
+source:
+  install_mode: submodule
+  repo: https://github.com/rapid-recovery-agency-inc/agents-skills
+  default_ref: main
+  submodule_path: .agents/skills
+  skills_root: skills
+tags_vocab:
+  - agents
+  - documentation
+  - repo-structure
+  - evaluation
+  - optimization
+  - skill-authoring
+  - backend
+  - development
+  - cli
+  - api
+  - microservice
+  - configuration
+  - environment
+  - env-vars
+
+schema:
+  $schema: "https://json-schema.org/draft/2020-12/schema"
+  $id: "./registry.schema.yaml"
+  title: "Agents Skills Registry"
+  description: "Registry contract for skills consumed by future CLI installers."
+  type: object
+  additionalProperties: false
+  required:
+    - schema_version
+    - source
+    - skills
+  properties:
+    $schema:
+      type: string
+    schema_version:
+      type: string
+      pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    source:
+      type: object
+      additionalProperties: false
+      required:
+        - install_mode
+        - repo
+        - default_ref
+        - submodule_path
+        - skills_root
+      properties:
+        install_mode:
+          type: string
+          enum:
+            - submodule
+        repo:
+          type: string
+          format: uri
+        default_ref:
+          type: string
+          minLength: 1
+        submodule_path:
+          type: string
+          minLength: 1
+        skills_root:
+          type: string
+          pattern: "^skills$"
+    tags_vocab:
+      type: array
+      items:
+        type: string
+        pattern: "^[a-z0-9-]+$"
+      uniqueItems: true
+    schema:
+      type: object
+    skills:
+      type: array
+      minItems: 1
+      items:
+        type: object
+        additionalProperties: false
+        required:
+          - id
+          - name
+          - description
+          - category
+          - primary_language
+          - source_path
+          - entrypoint
+          - version
+          - install
+          - added_at
+          - updated_at
+        properties:
+          id:
+            type: string
+            pattern: "^[a-z0-9-]+/[a-z0-9-]+$"
+          name:
+            type: string
+            pattern: "^[a-z0-9-]+$"
+          description:
+            type: string
+            minLength: 1
+            maxLength: 1024
+          category:
+            type: string
+            pattern: "^[a-z0-9-]+$"
+          primary_language:
+            type: string
+            enum:
+              - python
+              - node
+              - bash
+              - multi
+              - other
+          source_path:
+            type: string
+            pattern: "^skills/[a-z0-9-]+/[a-z0-9-]+$"
+          entrypoint:
+            type: string
+            const: SKILL.md
+          version:
+            type: string
+            pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          install:
+            type: object
+            additionalProperties: false
+            required:
+              - target_path
+              - link_mode
+            properties:
+              target_path:
+                type: string
+                pattern: "^[a-z0-9-]+$"
+              link_mode:
+                type: string
+                enum:
+                  - symlink
+                  - copy
+          compatibility:
+            type: string
+            maxLength: 500
+          tags:
+            type: array
+            items:
+              type: string
+              pattern: "^[a-z0-9-]+$"
+            uniqueItems: true
+          status:
+            type: string
+            enum:
+              - active
+              - experimental
+              - deprecated
+          added_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
+
+skills:
+  - id: generic/create-agents-files
+    name: create-agents-files
+    description: Create and maintain hierarchical AGENTS.md documentation from real package structure, dependencies, and call-site evidence. Use for any request to create or update an agents file, AGENTS.md, agents.md, or AGENTS hierarchy.
+    category: generic
+    primary_language: multi
+    source_path: skills/generic/create-agents-files
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: create-agents-files
+      link_mode: symlink
+    compatibility: Designed for agent runtimes that support Agent Skills and repository file editing.
+    tags:
+      - agents
+      - documentation
+      - repo-structure
+    status: active
+    added_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+  - id: generic/skill-creator
+    name: skill-creator
+    description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+    category: generic
+    primary_language: multi
+    source_path: skills/generic/skill-creator
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: skill-creator
+      link_mode: symlink
+    tags:
+      - evaluation
+      - optimization
+      - skill-authoring
+    status: active
+    added_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z"
+  - id: python/create-py-project
+    name: create-py-project
+    description: Create, set up, bootstrap, or scaffold modern Python projects with best-in-class tooling. Use when users want to initialize Python projects, create FastAPI apps, build CLI tools, or set up project tooling (poetry, uv, ruff, mypy, pytest, pre-commit).
+    category: python
+    primary_language: python
+    source_path: skills/python/create-py-project
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: create-py-project
+      link_mode: symlink
+    compatibility: Designed for agent runtimes that support Agent Skills and repository file editing.
+    tags:
+      - backend
+      - development
+      - cli
+      - api
+      - microservice
+    status: active
+    added_at: "2026-03-03T15:17:00Z"
+    updated_at: "2026-03-03T15:17:00Z"
+  - id: generic/new-environment-variable
+    name: new-environment-variable
+    description: Add new environment variables with robust, testable, and maintainable patterns for TypeScript and Python projects. Use when adding env vars following 12-Factor App principles with centralized access and validation.
+    category: generic
+    primary_language: multi
+    source_path: skills/generic/new-environment-variable
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: new-environment-variable
+      link_mode: symlink
+    compatibility: Designed for agent runtimes that support Agent Skills and repository file editing.
+    tags:
+      - configuration
+      - environment
+      - env-vars
+    status: active
+    added_at: "2026-05-05T13:10:00Z"
+    updated_at: "2026-05-05T13:10:00Z"

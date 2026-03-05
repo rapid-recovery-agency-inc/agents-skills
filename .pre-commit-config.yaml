@@ -23,6 +23,28 @@ repos:
   - id: check-merge-conflict
   - id: debug-statements
 
+- repo: local
+  hooks:
+  - id: validate-registry-schema
+    name: Validate registry.yaml schema
+    entry: python scripts/validate_registry.py
+    language: python
+    files: ^skills/registry\.yaml$
+    types: [yaml]
+    additional_dependencies:
+    - pyyaml
+    - jsonschema
+
+  - id: validate-skills-registered
+    name: Validate all skills are registered
+    entry: python scripts/validate_skills_registered.py
+    language: python
+    files: ^skills/
+    types: [directory]
+    always_run: true
+    additional_dependencies:
+    - pyyaml
+
 - repo: https://github.com/hukkin/mdformat
   rev: 0.7.22
   hooks:
@@ -46,14 +68,3 @@ repos:
     - mdformat-black # Python code formatting
     - mdformat-web # JavaScript, CSS, HTML, XML
     - mdformat-config # YAML, TOML, INI, config files
-
-- repo: local
-  hooks:
-
-  - id: update-version-json
-    name: Update version.json from pyproject.toml
-    entry: python scripts/update-version-number.py
-    language: system
-    stages: [pre-push]
-    always_run: true
-    pass_filenames: false

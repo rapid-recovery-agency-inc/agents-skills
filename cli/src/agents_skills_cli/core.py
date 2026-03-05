@@ -8,6 +8,7 @@ from typing import Any
 from pathlib import Path
 from dataclasses import dataclass
 
+import yaml
 from jsonschema import Draft202012Validator
 
 
@@ -52,7 +53,6 @@ class CliError(RuntimeError):
 class RegistryContext:
     registry_path: Path | None
     schema_path: Path | None
-    tag_vocab_path: Path | None
     project_root: Path
     source: RegistrySource
 
@@ -66,12 +66,14 @@ def resolve_paths(
 
     if registry:
         registry_path = Path(registry).resolve()
-        schema_path = registry_path.parent / "registry.schema.json"
-        tag_vocab_path = registry_path.parent / "tags.vocab.json"
+        # Support both .yaml and .json extensions
+        if registry_path.suffix in (".yaml", ".yml"):
+            schema_path = registry_path.parent / "registry.schema.json"
+        else:
+            schema_path = registry_path.parent / "registry.schema.json"
         return RegistryContext(
             registry_path=registry_path,
             schema_path=schema_path,
-            tag_vocab_path=tag_vocab_path,
             project_root=root,
             source=RegistrySource.LOCAL,
         )
@@ -80,18 +82,16 @@ def resolve_paths(
         return RegistryContext(
             registry_path=None,
             schema_path=None,
-            tag_vocab_path=None,
             project_root=root,
             source=RegistrySource.REMOTE,
         )
 
-    registry_path = root / "registry.json"
-    schema_path = registry_path.parent / "registry.schema.json"
-    tag_vocab_path = registry_path.parent / "tags.vocab.json"
+    # Default: look for registry.yaml in skills/ subdirectory
+    registry_path = root / "skills" / "registry.yaml"
+    schema_path = root / "cli" / "registry.schema.json"
     return RegistryContext(
         registry_path=registry_path,
         schema_path=schema_path,
-        tag_vocab_path=tag_vocab_path,
         project_root=root,
         source=RegistrySource.LOCAL,
     )
@@ -106,30 +106,58 @@ def load_json(path: Path) -> Any:
         raise CliError(f"Invalid JSON in {path}: {exc}") from exc
 
 
+def load_yaml(path: Path) -> Any:
+    try:
+        text = path.read_text(encoding="utf-8")
+        try:
+            return yaml.load(text, Loader=yaml.CSafeLoader)
+        except AttributeError:
+            return yaml.load(text, Loader=yaml.SafeLoader)
+    except FileNotFoundError as exc:
+        raise CliError(f"Missing file: {path}") from exc
+    except yaml.YAMLError as exc:
+        raise CliError(f"Invalid YAML in {path}: {exc}") from exc
+
+
 def load_registry(ctx: RegistryContext) -> dict[str, Any]:
     if ctx.source == RegistrySource.REMOTE:
         from . import http_client  # noqa: PLC0415
 
         registry = http_client.fetch_registry()
-        schema = http_client.fetch_schema()
-        tag_vocabulary = http_client.fetch_tags_vocab()
     else:
-        registry = load_json(ctx.registry_path)
-        schema = load_json(ctx.schema_path)
-        tag_vocabulary = load_json(ctx.tag_vocab_path)
+        # Detect format by extension
+        if ctx.registry_path and ctx.registry_path.suffix in (".yaml", ".yml"):
+            registry = load_yaml(ctx.registry_path)
+        else:
+            registry = load_json(ctx.registry_path)
 
     if not isinstance(registry, dict):
         path_str = str(ctx.registry_path) if ctx.registry_path else "remote"
-        raise CliError(f"registry.json must be a JSON object: {path_str}")
+        raise CliError(f"registry must be a JSON/YAML object: {path_str}")
+
+    # Get schema from embedded schema in registry (required)
+    schema = registry.get("schema")
+    if schema is None:
+        raise CliError("registry.yaml must contain embedded schema")
+
     if not isinstance(schema, dict):
-        path_str = str(ctx.schema_path) if ctx.schema_path else "remote"
-        raise CliError(f"registry.schema.json must be a JSON object: {path_str}")
+        raise CliError("embedded schema must be an object")
+
+    # Get tags_vocab from registry (embedded in YAML)
+    tag_vocabulary = registry.get("tags_vocab")
+    if tag_vocabulary is None and ctx.source == RegistrySource.REMOTE:
+        from . import http_client  # noqa: PLC0415
+        tag_vocabulary = http_client.fetch_tags_vocab()
+
     if not isinstance(tag_vocabulary, list) or not all(
         isinstance(tag, str) for tag in tag_vocabulary
     ):
-        path_str = str(ctx.tag_vocab_path) if ctx.tag_vocab_path else "remote"
-        raise CliError(f"tags.vocab.json must be a JSON array of strings: {path_str}")
+        raise CliError("registry must define tags_vocab as array of strings")
 
+    # Validate registry against schema
+    # Note: This provides runtime safety in addition to pre-commit validation.
+    # Pre-commit catches issues before commit, this catches issues at runtime
+    # (e.g., when fetching remote registry or using --registry override).
     validator = Draft202012Validator(schema)
     errors = sorted(validator.iter_errors(registry), key=lambda e: list(e.path))
     if errors:
@@ -137,7 +165,7 @@ def load_registry(ctx: RegistryContext) -> dict[str, Any]:
             f"{'/'.join(str(p) for p in err.path) or '<root>'}: {err.message}"
             for err in errors[:5]
         )
-        raise CliError(f"registry.json failed schema validation: {formatted}")
+        raise CliError(f"registry failed schema validation: {formatted}")
 
     _validate_language_and_tags(registry, set(tag_vocabulary))
     return registry
@@ -147,7 +175,7 @@ def _validate_language_and_tags(
     registry: dict[str, Any], allowed_tags: set[str]
 ) -> None:
     if not allowed_tags:
-        raise CliError("tags.vocab.json must define at least one tag")
+        raise CliError("tags_vocab must define at least one tag")
 
     for skill in registry.get("skills", []):
         lang = skill.get("primary_language")
