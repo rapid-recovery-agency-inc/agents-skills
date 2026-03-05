@@ -64,6 +64,25 @@
       "status": "active",
       "added_at": "2026-03-03T15:17:00Z",
       "updated_at": "2026-03-03T15:17:00Z"
+    },
+    {
+      "id": "generic/new-environment-variable",
+      "name": "new-environment-variable",
+      "description": "Add new environment variables with robust, testable, and maintainable patterns for TypeScript and Python projects. Use when adding env vars following 12-Factor App principles with centralized access and validation.",
+      "category": "generic",
+      "primary_language": "multi",
+      "source_path": "skills/generic/new-environment-variable",
+      "entrypoint": "SKILL.md",
+      "version": "0.1.0",
+      "install": {
+        "target_path": "new-environment-variable",
+        "link_mode": "symlink"
+      },
+      "compatibility": "Designed for agent runtimes that support Agent Skills and repository file editing.",
+      "tags": ["configuration", "environment", "env-vars"],
+      "status": "active",
+      "added_at": "2026-05-05T13:10:00Z",
+      "updated_at": "2026-05-05T13:10:00Z"
     }
   ]
 }

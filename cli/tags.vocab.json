@@ -9,5 +9,8 @@
   "development",
   "cli",
   "api",
-  "microservice"
+  "microservice",
+  "configuration",
+  "environment",
+  "env-vars"
 ]
