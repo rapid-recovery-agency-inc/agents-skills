@@ -7,6 +7,16 @@
 Applies to: `skills/` and all nested skill directories.
 Excludes: repository tooling and docs outside this subtree (`cli/`, root README, hook configuration).
 
+## Organization
+
+The `skills/` directory is a repository for skills, organized by high-level category directories:
+
+- `generic/` - Cross-project, language-agnostic skills
+- `python/` - Python-specific skills
+- `javascript/` - JavaScript/TypeScript-specific skills
+
+Each skill resides in its own directory under the appropriate category.
+
 ## Authority & Precedence
 
 Precedence:
@@ -38,9 +48,19 @@ Precedence:
 
 ## Common Changes
 
-- Add a skill: create `skills/<category>/<skill-name>/SKILL.md`, then add/update entry in `registry.json`.
+- Add a skill: create `skills/<category>/<skill-name>/SKILL.md`, then add/update entry in `cli/registry.json`.
+- Review skills for tagging: ensure skills have appropriate tags from `cli/tags.vocab.json`.
 - Update a skill: edit content + frontmatter, then run `just lint`.
 - Rename/move a skill: update filesystem path and matching registry `source_path`/install mapping in the same change.
+
+### Adding New Tags
+
+When adding skills that need tags not in `cli/tags.vocab.json`:
+
+1. Add the new tag to `cli/tags.vocab.json` (alphabetical order)
+1. Then use the tag in the skill's `registry.json` entry
+
+All tags must be lowercase kebab-case (e.g., `env-vars`, `repo-structure`).
 
 ## Gotchas
 
