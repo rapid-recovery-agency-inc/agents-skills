@@ -93,7 +93,7 @@ def list_skills(
         else:
             for skill in sorted(skills, key=lambda s: s["id"]):
                 skill_name = skill["id"].split("/")[-1]
-                typer.echo(skill_name)
+                typer.echo(typer.style(skill_name, fg=typer.colors.BLUE))
     except CliError as exc:
         typer.secho(str(exc), fg=typer.colors.RED, err=True)
         raise typer.Exit(code=1) from None

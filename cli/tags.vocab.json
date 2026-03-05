@@ -4,5 +4,10 @@
   "repo-structure",
   "evaluation",
   "optimization",
-  "skill-authoring"
+  "skill-authoring",
+  "backend",
+  "development",
+  "cli",
+  "api",
+  "microservice"
 ]
