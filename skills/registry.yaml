@@ -11,15 +11,20 @@ tags_vocab:
   - backend
   - cli
   - configuration
+  - design-system
   - development
   - documentation
   - env-vars
   - environment
   - evaluation
   - microservice
+  - mobile
   - optimization
+  - react-native
   - repo-structure
   - skill-authoring
+  - theming
+  - ui
 
 schema:
   $schema: "https://json-schema.org/draft/2020-12/schema"
@@ -236,3 +241,24 @@ skills:
     status: active
     added_at: "2026-05-05T13:10:00Z"
     updated_at: "2026-05-05T13:10:00Z"
+  - id: ui/sloth-ui-mobile
+    name: sloth-ui-mobile
+    description: How to use the @rapid-recovery-agency-inc/sloth-ui-mobile design system library in the insightt-mobile app. Covers theming, styling, components, responsive design, and conventions. Activate for any request involving UI components, styling, theming, text, buttons, modals, cards, or visual presentation in this project.
+    category: ui
+    primary_language: node
+    source_path: skills/ui/sloth-ui-mobile
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: sloth-ui-mobile
+      link_mode: symlink
+    compatibility: Requires @rapid-recovery-agency-inc/sloth-ui-mobile installed as a dependency.
+    tags:
+      - design-system
+      - mobile
+      - react-native
+      - theming
+      - ui
+    status: active
+    added_at: "2026-03-06T13:02:00Z"
+    updated_at: "2026-03-06T13:02:00Z"
