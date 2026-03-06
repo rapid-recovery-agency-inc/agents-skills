@@ -107,7 +107,8 @@ import {
   useThemedStyles,
   useTheme,
   Background,
-  MainText
+  MainText,
+  Icon
 } from "@rapid-recovery-agency-inc/sloth-ui-mobile";
 
 const Component = () => {
@@ -117,18 +118,15 @@ const Component = () => {
   return (
     <Background style={styles.background}>
       <MainText themeColor="fgPrimary" type="BOOK_LG">Content here</MainText>
-      <Icon iconName="check" size={18} color={styles.icon.color} />
+      <Icon iconName="check" size={18} themeColor="fgPrimary" />
     </Background>
   );
 }
 
-  const styleSheet = createThemeStyleSheet({
+const styleSheet = createThemeStyleSheet({
   background: {
-    backgroundColor: colors.bgSurfaceElevated, // theme token, NOT a hex value
+    backgroundColor: "bgSurfaceElevated", // theme token string, NOT a hex value
     padding: 16,
-  },
-  icon: {
-    color: colors.fgPrimary,
   },
 });
 ```
@@ -358,6 +356,7 @@ import {
   Container,
   DeviceSize,
 } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
+import { View } from 'react-native';
 
 export const VehicleCard = ({ vehicle, onSpot }: VehicleCardProps) => {
   const styles = useThemedStyles(styleSheet);
