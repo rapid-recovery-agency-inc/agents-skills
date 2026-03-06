@@ -22,12 +22,13 @@ app = typer.Typer(
     add_completion=True,
     no_args_is_help=True,
     rich_markup_mode="rich",
-    help="Install and update agent skills from registry.json",
+    help="Install and update agent skills from registry.yaml",
 )
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main_callback(
+    ctx: typer.Context,
     version: bool = typer.Option(False, "--version", "-v", help="Show version"),
     remote: bool = typer.Option(
         True, "--remote/--local", help="Use remote registry or local"
@@ -59,7 +60,7 @@ def _target_skill_file(
 def list_skills(
     query: list[str] | None = typer.Argument(None, help="Search terms (repeatable)"),
     registry: str | None = typer.Option(
-        None, "--registry", help="Path to registry.json"
+        None, "--registry", help="Path to registry.yaml"
     ),
     tag: list[str] | None = typer.Option(
         None, "--tag", help="Filter by tag (repeatable)"
@@ -188,7 +189,7 @@ def _add_impl(
 def add_skill(
     skill_id: str = typer.Argument(help="Skill id from registry, or 'all'"),
     registry: str | None = typer.Option(
-        None, "--registry", help="Path to registry.json"
+        None, "--registry", help="Path to registry.yaml"
     ),
     target_root: str | None = typer.Option(
         None, "--target-root", help="Override destination root"

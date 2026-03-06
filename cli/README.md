@@ -126,7 +126,7 @@ agents-skills add create-agents-files --ide c --yes
 
 - `--version`, `-v`: Show version information
 - `--remote` / `--local`: Use remote registry (default) or local files
-- `--registry <path>`: Override registry.json location (forces local mode)
+- `--registry <path>`: Override registry.yaml location (forces local mode)
 - `--target-root <path>`: Override destination root (default: `.agents`)
 - `--ide <choice>`: IDE choice: `w` (Windsurf/Copilot/Codex/Cursor), `c` (Claude), `a` (Antigravity/Gemini)
 - `--dry-run`: Show actions without writing
@@ -139,11 +139,11 @@ By default, the CLI fetches the registry from GitHub. This means you can run `ag
 
 ### Remote Registry (Default)
 
-The CLI fetches registry files from:
+The CLI fetches the registry from:
 
-- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/cli/registry.json`
-- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/cli/registry.schema.json`
-- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/cli/tags.vocab.json`
+- `https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/main/skills/registry.yaml`
+
+The registry contains an embedded JSON schema for validation.
 
 ### Local Registry
 
@@ -192,6 +192,16 @@ mypy src/agents_skills_cli/
 # Format code
 ruff format src/
 ```
+
+### Testing Local Changes
+
+After installing with `pip install -e .`, test your changes locally:
+
+```bash
+agents-skills list --local
+```
+
+The `--local` flag uses the local `skills/registry.yaml` file. Without `--local`, it fetches from GitHub (won't work until you commit/push since the remote URL changed to `/skills/registry.yaml`).
 
 ## License
 

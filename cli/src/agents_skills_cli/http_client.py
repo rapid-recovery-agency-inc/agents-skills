@@ -5,11 +5,20 @@ from typing import Any
 from contextlib import contextmanager
 
 import httpx
+import yaml
 
 from . import __version__
 
 
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/refs/heads/main/cli"
+def safe_yaml_load(text: str) -> Any:
+    """Load YAML using fastest available loader."""
+    try:
+        return yaml.load(text, Loader=yaml.CSafeLoader)
+    except AttributeError:
+        return yaml.load(text, Loader=yaml.SafeLoader)
+
+
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/rapid-recovery-agency-inc/agents-skills/refs/heads/main"
 
 DEFAULT_TIMEOUT = httpx.Timeout(10.0, read=30.0)
 
@@ -57,7 +66,7 @@ def fetch_json(url: str, timeout: httpx.Timeout | None = None) -> dict[str, Any]
 
 
 def fetch_registry() -> dict[str, Any]:
-    """Fetch the registry.json from GitHub.
+    """Fetch the registry.yaml from GitHub.
 
     Returns:
         The parsed registry data
@@ -69,7 +78,10 @@ def fetch_registry() -> dict[str, Any]:
     from .core import CliError  # noqa: PLC0415
 
     try:
-        return fetch_json(f"{GITHUB_RAW_BASE}/registry.json")
+        with get_http_client() as client:
+            response = client.get(f"{GITHUB_RAW_BASE}/skills/registry.yaml")
+            response.raise_for_status()
+            return safe_yaml_load(response.text)
     except httpx.HTTPStatusError as exc:
         raise CliError(
             f"Failed to fetch registry (HTTP {exc.response.status_code})"
@@ -78,34 +90,23 @@ def fetch_registry() -> dict[str, Any]:
         raise CliError("Cannot connect to GitHub (check network)") from exc
     except httpx.TimeoutException as exc:
         raise CliError("Request timed out") from exc
-    except json.JSONDecodeError as exc:
-        raise CliError(f"Invalid JSON in registry: {exc}") from exc
-
-
-def fetch_schema() -> dict[str, Any]:
-    """Fetch the registry.schema.json from GitHub."""
-    from .core import CliError  # noqa: PLC0415
-
-    try:
-        return fetch_json(f"{GITHUB_RAW_BASE}/registry.schema.json")
-    except httpx.HTTPStatusError as exc:
-        raise CliError(
-            f"Failed to fetch schema (HTTP {exc.response.status_code})"
-        ) from exc
-    except httpx.ConnectError as exc:
-        raise CliError("Cannot connect to GitHub (check network)") from exc
-    except httpx.TimeoutException as exc:
-        raise CliError("Request timed out") from exc
-    except json.JSONDecodeError as exc:
-        raise CliError(f"Invalid JSON in schema: {exc}") from exc
+    except yaml.YAMLError as exc:
+        raise CliError(f"Invalid YAML in registry: {exc}") from exc
 
 
 def fetch_tags_vocab() -> list[str]:
-    """Fetch the tags.vocab.json from GitHub."""
+    """Fetch the tags_vocab from registry.yaml (fallback for remote)."""
     from .core import CliError  # noqa: PLC0415
 
     try:
-        return fetch_json(f"{GITHUB_RAW_BASE}/tags.vocab.json")
+        with get_http_client() as client:
+            response = client.get(f"{GITHUB_RAW_BASE}/skills/registry.yaml")
+            response.raise_for_status()
+            data = safe_yaml_load(response.text)
+            tags = data.get("tags_vocab")
+            if not isinstance(tags, list):
+                raise CliError("registry must define tags_vocab as array of strings")
+            return tags
     except httpx.HTTPStatusError as exc:
         raise CliError(
             f"Failed to fetch tags vocab (HTTP {exc.response.status_code})"
@@ -114,22 +115,8 @@ def fetch_tags_vocab() -> list[str]:
         raise CliError("Cannot connect to GitHub (check network)") from exc
     except httpx.TimeoutException as exc:
         raise CliError("Request timed out") from exc
-    except json.JSONDecodeError as exc:
-        raise CliError(f"Invalid JSON in tags vocab: {exc}") from exc
-
-
-def fetch_version() -> str | None:
-    """Fetch the version.json from GitHub.
-
-    Returns:
-        The version string, or None if not available
-
-    """
-    try:
-        data = fetch_json(f"{GITHUB_RAW_BASE}/version.json")
-        return data.get("version")
-    except Exception:
-        return None
+    except yaml.YAMLError as exc:
+        raise CliError(f"Invalid YAML in registry: {exc}") from exc
 
 
 def fetch_directory_contents(

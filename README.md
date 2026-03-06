@@ -70,8 +70,7 @@ uvx --from "git+https://github.com/rapid-recovery-agency-inc/agents-skills.git@m
 **Repository structure:**
 
 - `skills/` - Skill definitions and assets
-- `registry.json` - Source of truth index
-- `registry.schema.json` - JSON Schema validation
+- `skills/registry.yaml` - Source of truth index with embedded schema and tags_vocab
 - `cli/` - CLI tool for consuming skills
 
 ## License

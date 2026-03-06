@@ -29,7 +29,7 @@ Precedence:
 
 ## Common Changes
 
-- Add a generic skill under `skills/generic/<skill-name>/SKILL.md` and register it in `registry.json`.
+- Add a generic skill under `skills/generic/<skill-name>/SKILL.md` and register it in `skills/registry.yaml`.
 - Keep frontmatter concise and portable (`name`, `description`, optional compatibility metadata).
 - Move a skill out of `generic/` if it becomes product- or language-specific.
 

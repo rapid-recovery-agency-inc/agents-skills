@@ -44,21 +44,21 @@ Precedence:
 
 - Source authoring path: `skills/...`
 - Runtime materialization path: `.agents/skills/...`
-- Any move/rename in `skills/` MUST be paired with `registry.json` updates.
+- Any move/rename in `skills/` MUST be paired with `skills/registry.yaml` updates.
 
 ## Common Changes
 
-- Add a skill: create `skills/<category>/<skill-name>/SKILL.md`, then add/update entry in `cli/registry.json`.
-- Review skills for tagging: ensure skills have appropriate tags from `cli/tags.vocab.json`.
+- Add a skill: create `skills/<category>/<skill-name>/SKILL.md`, then add/update entry in `skills/registry.yaml`.
+- Review skills for tagging: ensure skills have appropriate tags from `skills/registry.yaml` `tags_vocab`.
 - Update a skill: edit content + frontmatter, then run `just lint`.
 - Rename/move a skill: update filesystem path and matching registry `source_path`/install mapping in the same change.
 
 ### Adding New Tags
 
-When adding skills that need tags not in `cli/tags.vocab.json`:
+When adding skills that need tags not in `skills/registry.yaml` `tags_vocab`:
 
-1. Add the new tag to `cli/tags.vocab.json` (alphabetical order)
-1. Then use the tag in the skill's `registry.json` entry
+1. Add the new tag to `tags_vocab` in `skills/registry.yaml` (alphabetical order)
+1. Then use the tag in the skill's registry entry
 
 All tags must be lowercase kebab-case (e.g., `env-vars`, `repo-structure`).
 
