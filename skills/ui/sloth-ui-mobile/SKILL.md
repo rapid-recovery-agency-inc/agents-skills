@@ -12,18 +12,18 @@ For the complete component catalog and Figma design links, see `references/compo
 
 ## Preferences
 
-1. **SHOULD AVOID** use hardcoded color values (hex, rgb, rgba) in styles. Use theme color tokens instead.
-1. **SHOULD AVOID** use inline styles. Use `createThemeStyleSheet` + `useThemedStyles` instead.
-1. **SHOULD AVOID** create styles with `font-*` or `color` properties directly. Use `MainText` or theme tokens.
-1. **SHOULD AVOID** use deprecated components.
-1. **PREFER** import all components from `'@rapid-recovery-agency-inc/sloth-ui-mobile'`.
-1. **PREFER** use `createThemeStyleSheet` instead of `StyleSheet.create` to ensure theme compatibility.
-1. **PREFER** use `MainText` for all text rendering, never raw `<Text>` from React Native.
-1. **PREFER** use `themeColor` prop on `MainText` and `Icon` — the `color` prop is **deprecated** on both.
-1. **PREFER** use `<Background>` and `<Container>` for layout structure instead of manually setting background colors on `<View>`.
-1. **PREFER** use `LoaderV2` component instead of `ActivityIndicator`.
-1. **PREFER** use `DividerV2` component instead of a custom view.
-1. **PREFER** use `Button` component instead of `TouchableOpacity`.
+1. **SHOULD AVOID** using hardcoded color values (hex, rgb, rgba) in styles. Use theme color tokens instead.
+1. **SHOULD AVOID** using inline styles. Use `createThemeStyleSheet` + `useThemedStyles` instead.
+1. **SHOULD AVOID** creating styles with `font-*` or `color` properties directly. Use `MainText` or theme tokens.
+1. **SHOULD AVOID** using deprecated components.
+1. **PREFER** importing all components from `'@rapid-recovery-agency-inc/sloth-ui-mobile'`.
+1. **PREFER** using `createThemeStyleSheet` instead of `StyleSheet.create` to ensure theme compatibility.
+1. **PREFER** using `MainText` for all text rendering, never raw `<Text>` from React Native.
+1. **PREFER** using the `themeColor` prop on `MainText` and `Icon` — the `color` prop is **deprecated** on both.
+1. **PREFER** using `<Background>` and `<Container>` for layout structure instead of manually setting background colors on `<View>`.
+1. **PREFER** using the `LoaderV2` component instead of `ActivityIndicator`.
+1. **PREFER** using the `DividerV2` component instead of a custom view.
+1. **PREFER** using the `Button` component instead of `TouchableOpacity`.
 
 ## Theming System
 
@@ -104,21 +104,33 @@ Don't use `useThemeColor` when you need a color value, create a new class object
 ```typescript
 import {
   createThemeStyleSheet,
+  useThemedStyles,
   useTheme,
+  Background,
+  MainText
 } from "@rapid-recovery-agency-inc/sloth-ui-mobile";
 
-const styleSheet = createThemeStyleSheet({
-  container: {
+const Component = () => {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(styleSheet);
+
+  return (
+    <Background style={styles.background}>
+      <MainText themeColor="fgPrimary" type="BOOK_LG">Content here</MainText>
+      <Icon iconName="check" size={18} color={styles.icon.color} />
+    </Background>
+  );
+}
+
+  const styleSheet = createThemeStyleSheet({
+  background: {
     backgroundColor: colors.bgSurfaceElevated, // theme token, NOT a hex value
     padding: 16,
   },
-  color: {
+  icon: {
     color: colors.fgPrimary,
   },
 });
-
-const { colors } = useTheme();
-const bgColor = colors.bgSurfaceElevated;
 ```
 
 ## Theme Color Tokens
@@ -213,13 +225,17 @@ Represents a **content block** or card-like container.
 ```typescript
 import { Background, Container, useThemedStyles, createThemeStyleSheet, MainText } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
 
-const styles = useThemedStyles(styleSheet);
+const Component = () => {
+  const styles = useThemedStyles(styleSheet);
 
-<Background style={styles.background}>
-  <Container borderBottom style={styles.container}>
-    <MainText themeColor="fgPrimary" type="BOOK_LG">Content here</MainText>
-  </Container>
-</Background>
+  return (
+    <Background style={styles.background}>
+      <Container borderBottom style={styles.container}>
+        <MainText themeColor="fgPrimary" type="BOOK_LG">Content here</MainText>
+      </Container>
+    </Background>
+  )
+}
 
 const styleSheet = createThemeStyleSheet({
   background: {
@@ -347,7 +363,7 @@ export const VehicleCard = ({ vehicle, onSpot }: VehicleCardProps) => {
   const styles = useThemedStyles(styleSheet);
 
   return (
-    <Background style={{ flex: 1 }}>
+    <Background style={styles.background}>
       <Container borderBottom style={styles.card}>
         <View style={styles.header}>
           <MainText type="BOLD_LG" themeColor="fgPrimary">{vehicle.make}</MainText>
@@ -370,6 +386,9 @@ export const VehicleCard = ({ vehicle, onSpot }: VehicleCardProps) => {
 };
 
 const styleSheet = createThemeStyleSheet({
+  background: {
+    flex: 1,
+  },
   card: {
     padding: 16,
     [DeviceSize.MD]: { padding: 24 },
