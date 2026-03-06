@@ -1,5 +1,5 @@
 ---
-name: use-sloth-ui-mobile
+name: sloth-ui-mobile
 description: How to use the @rapid-recovery-agency-inc/sloth-ui-mobile design system library in the insightt-mobile app. Covers theming, styling, components, responsive design, and conventions. Activate for any request involving UI components, styling, theming, text, buttons, modals, cards, or visual presentation in this project.
 compatibility: Requires @rapid-recovery-agency-inc/sloth-ui-mobile installed as a dependency.
 ---
@@ -40,18 +40,21 @@ Define styles outside the component. Use theme token names (strings) for any col
 Token-supported properties: `color`, `backgroundColor`, `borderColor`, `borderTopColor`, `borderRightColor`, `borderBottomColor`, `borderLeftColor`, `shadowColor`, `textDecorationColor`, `textShadowColor`, `tintColor`, `overlayColor`.
 
 ```typescript
-import { createThemeStyleSheet, DeviceSize } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
+import {
+  createThemeStyleSheet,
+  DeviceSize,
+} from "@rapid-recovery-agency-inc/sloth-ui-mobile";
 
 const styleSheet = createThemeStyleSheet({
   container: {
-    backgroundColor: 'bgSurfaceBase', // theme token, NOT a hex value
+    backgroundColor: "bgSurfaceBase", // theme token, NOT a hex value
     padding: 16,
   },
   titleContainer: {
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'bgSurfaceElevated',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "bgSurfaceElevated",
     [DeviceSize.LG]: {
       padding: 24,
     },
@@ -99,7 +102,10 @@ Don't use `useThemeColor` when you need a color value, create a new class object
 **PREFER**. useTheme() to get the colors object.
 
 ```typescript
-import { createThemeStyleSheet } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
+import {
+  createThemeStyleSheet,
+  useTheme,
+} from "@rapid-recovery-agency-inc/sloth-ui-mobile";
 
 const styleSheet = createThemeStyleSheet({
   container: {
@@ -132,7 +138,10 @@ Special tokens: `transparent` (always transparent), `bgPositionGold`/`Silver`/`B
 `useThemedStyles` handles responsiveness automatically. Define breakpoint-specific overrides using `DeviceSize` keys inside any style:
 
 ```typescript
-import { createThemeStyleSheet, DeviceSize } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
+import {
+  createThemeStyleSheet,
+  DeviceSize,
+} from "@rapid-recovery-agency-inc/sloth-ui-mobile";
 
 const styleSheet = createThemeStyleSheet({
   container: {
@@ -202,13 +211,24 @@ Represents a **content block** or card-like container.
 `padding`, `margin` (and variations), `flex`, `flexDirection`, `justifyContent`, `alignItems`, `width`, `height`, `gap`, `borderRadius`
 
 ```typescript
-import { Background, Container } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
+import { Background, Container, useThemedStyles, createThemeStyleSheet, MainText } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
 
-<Background style={{ flex: 1 }}>
-  <Container borderBottom style={{ padding: 16 }}>
+const styles = useThemedStyles(styleSheet);
+
+<Background style={styles.background}>
+  <Container borderBottom style={styles.container}>
     <MainText themeColor="fgPrimary" type="BOOK_LG">Content here</MainText>
   </Container>
 </Background>
+
+const styleSheet = createThemeStyleSheet({
+  background: {
+    flex: 1,
+  },
+  container: {
+    padding: 16,
+  },
+});
 ```
 
 ## Text Component
@@ -295,9 +315,8 @@ import { Button } from '@rapid-recovery-agency-inc/sloth-ui-mobile';
 | `Dropdown`                                 | Select dropdown        | Options, selection callbacks                  |
 | `Pill`                                     | Status labels          | `color`, `variant`, `size`                    |
 | `Avatar` / `AvatarRow`                     | User avatars           | Name, image, size                             |
-| `Divider` / `DividerV2`                    | Visual separators      | —                                             |
-| `Loader` / `LoaderV2`                      | Loading indicators     | —                                             |
-| `BottomSheet`                              | Slide-up panel         | `isVisible`, `onClose`                        |
+| `DividerV2`                                | Visual separators      | —                                             |
+| `LoaderV2`                                 | Loading indicators     | —                                             |
 | `ConfirmationModal`                        | Confirm/cancel dialogs | `title`, `message`, `onConfirm`               |
 | `MainModal`                                | General modal          | `isVisible`, `onClose`                        |
 | `Checkbox` / `Radio`                       | Selection controls     | `checked`, `onChange`, `size`                 |

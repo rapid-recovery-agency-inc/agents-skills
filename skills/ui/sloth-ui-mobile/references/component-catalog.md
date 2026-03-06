@@ -60,9 +60,9 @@ All imports: `import { ComponentName } from '@rapid-recovery-agency-inc/sloth-ui
 
 ### Icons
 
-| Export | Description                                                             |
-| ------ | ----------------------------------------------------------------------- |
-| `Icon` | FontAwesome icon component. Props: `iconName`, `size`, `color`, `solid` |
+| Export | Description                                                                                                                |
+| ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `Icon` | FontAwesome icon component. Props: `iconName`, `size`, `themeColor`, `solid`. **`color` is deprecated** — use `themeColor` |
 
 ### Input
 
