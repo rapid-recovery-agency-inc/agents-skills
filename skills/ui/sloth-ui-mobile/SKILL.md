@@ -1,14 +1,14 @@
 ---
 name: sloth-ui-mobile
-description: How to use the @rapid-recovery-agency-inc/sloth-ui-mobile design system library in the insightt-mobile app. Covers theming, styling, components, responsive design, and conventions. Activate for any request involving UI components, styling, theming, text, buttons, modals, cards, or visual presentation in this project.
+description: How to use the @rapid-recovery-agency-inc/sloth-ui-mobile design system library in a React Native app. Covers theming, styling, components, responsive design, and conventions. Activate for any request involving UI components, styling, theming, text, buttons, modals, cards, or visual presentation when this library is in use.
 compatibility: Requires @rapid-recovery-agency-inc/sloth-ui-mobile installed as a dependency.
 ---
 
 # Using sloth-ui-mobile
 
-This skill provides instructions for using the `@rapid-recovery-agency-inc/sloth-ui-mobile` design system library in the insightt-mobile app.
+This skill provides instructions for using the `@rapid-recovery-agency-inc/sloth-ui-mobile` design system library in a React Native app.
 
-For the complete component catalog and Figma design links, see `references/component-catalog.md`. If you need UI components from react-native core, analyze component catalog first.
+For the complete component catalog and Figma design links, see `references/component-catalog.md`. If you need UI components from react-native core, review the component catalog first.
 
 ## Preferences
 
@@ -118,7 +118,7 @@ const Component = () => {
   return (
     <Background style={styles.background}>
       <MainText themeColor="fgPrimary" type="BOOK_LG">Content here</MainText>
-      <Icon iconName="check" size={18} themeColor="fgPrimary" />
+      <Icon iconName="check" size={18} color={colors.fgPrimary} />
     </Background>
   );
 }
@@ -130,6 +130,8 @@ const styleSheet = createThemeStyleSheet({
   },
 });
 ```
+
+In this example, `MainText` should still use `themeColor` because that API accepts a token. The `Icon` uses `color={colors.fgPrimary}` only to demonstrate the fallback pattern for APIs that need a resolved color value.
 
 ## Theme Color Tokens
 

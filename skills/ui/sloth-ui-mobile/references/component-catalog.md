@@ -194,4 +194,8 @@ All imports: `import { ComponentName } from '@rapid-recovery-agency-inc/sloth-ui
 
 Components are mapped to the [Mobile Design System Figma](https://www.figma.com/design/ZSvpk711R1PCVMpfZDLLdB/Design-System---Mobile-App-2025).
 
-When implementing UI, check the Figma design system for visual specifications before building custom components.
+When implementing UI, use this document as the primary reference for available components and exports.
+
+Consult the Figma design system for visual specifications only when the agent or user has a working browser or Figma access path.
+
+If Figma is not accessible in the current workflow, rely on the Markdown catalog first and ask the user for missing visual details before building custom components.

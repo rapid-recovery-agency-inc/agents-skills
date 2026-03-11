@@ -243,7 +243,7 @@ skills:
     updated_at: "2026-05-05T13:10:00Z"
   - id: ui/sloth-ui-mobile
     name: sloth-ui-mobile
-    description: How to use the @rapid-recovery-agency-inc/sloth-ui-mobile design system library in the insightt-mobile app. Covers theming, styling, components, responsive design, and conventions. Activate for any request involving UI components, styling, theming, text, buttons, modals, cards, or visual presentation in this project.
+    description: How to use the @rapid-recovery-agency-inc/sloth-ui-mobile design system library in a React Native app. Covers theming, styling, components, responsive design, and conventions. Activate for any request involving UI components, styling, theming, text, buttons, modals, cards, or visual presentation when this library is in use.
     category: ui
     primary_language: node
     source_path: skills/ui/sloth-ui-mobile
