@@ -49,10 +49,22 @@ Examples:
 If issue is complex, more paragraphs may be included but minimize to reduce
 cognitive friction and complexity.]
 
+### MOTIVATION
+Why this matters: [business impact, user pain point, or technical debt addressed]
+
+### TECHNICAL APPROACH
+- Key implementation strategy or architecture considerations
+- Any known constraints or dependencies
+- Alternative approaches considered (if relevant)
+
 ### WORK TO DO
 - [ ] Action-oriented deliverable or validation step
 - [ ] Another testable checkbox item
 - [ ] 3-7 bullets usually
+
+### ACCEPTANCE CRITERIA
+- [ ] Measurable outcome that validates completion
+- [ ] Another testable condition
 
 ### RELATED ISSUES (only if present)
 - #123 (dependency or prior attempt)
@@ -67,6 +79,7 @@ SELECT * FROM table WHERE condition = 'value';
 ### NOTES (optional)
 
 - Context that doesn't fit elsewhere
+- Links to relevant documentation, designs, or discussions
 ````
 
 ## Format Variants by Issue Type
@@ -75,6 +88,9 @@ SELECT * FROM table WHERE condition = 'value';
 
 ```markdown
 [1-2 sentence problem summary]
+
+### MOTIVATION
+Why this matters: [user impact, business consequence, or technical debt]
 
 ### STEPS TO REPRODUCE
 1. Step one
@@ -85,6 +101,11 @@ What should happen
 
 ### ACTUAL
 What actually happens
+
+### TECHNICAL APPROACH
+- Root cause hypothesis
+- Key files/components likely involved
+- Any constraints or considerations
 
 ### ACCEPTANCE CRITERIA
 - [ ] Fix verified in staging
@@ -97,10 +118,18 @@ What actually happens
 ```markdown
 [Business value: why we need this]
 
+### MOTIVATION
+Why this matters: [user benefit, business impact, or strategic value]
+
 ### SPECS
 - Key technical requirements
 - Architecture notes
 - API changes
+
+### TECHNICAL APPROACH
+- Implementation strategy
+- Key components to modify
+- Any constraints or known limitations
 
 ### ACCEPTANCE CRITERIA
 - [ ] Testable outcome
@@ -120,16 +149,25 @@ What actually happens
 ```markdown
 [Goal/purpose of work]
 
+### MOTIVATION
+Why this investigation matters: [decision needed, problem to solve, or knowledge gap]
+
 ### WORK TO DO
 - [ ] Action item with checkbox
 - [ ] Another deliverable
 - [ ] Investigation step
+
+### TECHNICAL APPROACH
+- Hypothesis to test
+- Files/components to examine
+- Key questions to answer
 
 ### DATA / CONTEXT
 [If applicable: SQL, schema, background, data sources]
 
 ### NEXT STEPS
 - Follow-up actions after completion
+- Decision points or gates
 ```
 
 ### Customer Support (CS)
@@ -137,11 +175,29 @@ What actually happens
 ```markdown
 [Client name and brief issue summary]
 
+### MOTIVATION
+Why this matters: [business impact, customer satisfaction, revenue risk]
+
+### CUSTOMER REPORT
 [Context from customer - what they reported]
 
-[Screenshots or links to evidence]
+### EVIDENCE
+[Screenshots, logs, or links to evidence]
 
-[Additional context for dev team]
+### TECHNICAL APPROACH
+- Initial hypothesis
+- Components/systems likely involved
+- Any known workarounds
+
+### WORK TO DO
+- [ ] Investigate root cause
+- [ ] Determine fix or workaround
+- [ ] Communicate with customer
+
+### ACCEPTANCE CRITERIA
+- [ ] Issue resolved or workaround provided
+- [ ] Customer notified
+- [ ] Documentation updated if needed
 ```
 
 ## Writing Principles
@@ -149,7 +205,7 @@ What actually happens
 1. **Crystallized**: No filler, no hedging, no repeated context from title
 1. **Outcome-oriented**: Actionable checkboxes, not vague tasks
 1. **Flexible**: Structure adapts to bug reports, features, investigations, or CS tickets
-1. **Concise**: Executive summary is key; keep it brief but informative
+1. **Concise**: Lead paragraph is key; keep it brief but informative
 1. **Practical**: Focused on actionable outcomes, not just problem description
 1. **Efficient**: Minimize cognitive load; smart defaults; only ask when unclear
 
