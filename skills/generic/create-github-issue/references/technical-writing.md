@@ -1,316 +1,289 @@
-# AGENTS.md Writing Standard (For Hierarchy Skill)
+# Technical Writing Principles for Development Documentation
 
-## 0. Writing Objective
+## Purpose
 
-Generated AGENTS.md files MUST be:
+This reference defines writing standards for technical documentation in software development contexts: code comments, API documentation, runbooks, specifications, architecture documents, and READMEs.
 
-- Evidence-derived
-- Hierarchically consistent
-- Non-duplicative
-- Enforceable
-- Token-efficient
+## Core Principles
 
-No narrative. No filler.
+Technical documentation MUST be:
+
+- **Evidence-driven** - Based on observed behavior, not assumptions
+- **Measurable** - Constraints are testable and enforceable
+- **Non-duplicative** - No repeated information across documents
+- **Token-efficient** - Concise without sacrificing clarity
+- **Clarity-focused** - Simple language, active voice, present tense
+
+No narrative. No filler. No fabrication.
 
 ______________________________________________________________________
 
-## 1. Evidence-Driven Content Rules
+## Evidence-Driven Content
 
-Before writing, the Skill MUST confirm:
+### Verification Requirements
 
-- Package structure
-- Upstream dependencies
-- Downstream consumers
-- Real call-site usage patterns
+Before writing documentation:
 
-Content MUST reflect observed behavior, not assumptions.
+- Verify system behavior through direct observation
+- Confirm implementation details against source code
+- Validate assumptions through testing or runtime inspection
+- Document what exists, not what should exist or might exist
+
+Content MUST reflect observed reality.
+
+### When Evidence is Insufficient
 
 If evidence confidence is low:
 
-- STOP
-- Ask for clarification
+- STOP writing
+- Gather missing information through code review, testing, or profiling
+- Request clarification from subject matter experts
+- Mark uncertain areas explicitly if documentation must proceed
 
-Never fabricate responsibilities.
+Never fabricate functionality, behavior, or constraints.
 
-______________________________________________________________________
+### Applicability
 
-## 2. Hierarchy Semantics (Mandatory)
-
-### Root AGENTS.md
-
-Contains:
-
-- Global invariants
-- Authority model
-- Cross-cutting constraints
-- Child AGENTS list
-
-MUST NOT contain:
-
-- Package-level implementation details
+Applies to all technical documentation: code comments, docstrings, API docs, runbooks, specifications, architecture decision records, READMEs, troubleshooting guides.
 
 ______________________________________________________________________
 
-### Non-Root AGENTS.md
+## Declarative Language
 
-MUST include:
+### RFC 2119 Keywords
 
-```md
-Inherits: <relative path to parent AGENTS.md>
-Overrides: (optional)
-Additions: (optional)
+Use RFC 2119 keywords for precision:
+
+- **MUST** / **MUST NOT** - Absolute requirements
+- **SHOULD** / **SHOULD NOT** - Strong recommendations with valid exceptions
+- **MAY** - Truly optional behavior
+
+### Writing Rules
+
+- One requirement per bullet point
+- No adjectives unless technically necessary
+- No rationale or justification (separate section if needed)
+- No narrative or conversational tone
+- No compound requirements
+
+**Pattern - Avoid:**
+
+```text
+Validate and sanitize all user inputs before processing.
 ```
 
-Rules:
+**Pattern - Prefer:**
 
-- MAY narrow scope
-- MUST NOT weaken parent constraints
-- MUST NOT duplicate parent policy unless narrowing
-
-______________________________________________________________________
-
-## 3. Deterministic File Structure
-
-### Root AGENTS.md
-
-Root files MUST follow this 5-section structure:
-
-1. Scope
-1. Authority & Precedence
-1. Package Responsibilities
-1. Constraints
-1. Child AGENTS (omit for leaf)
-
-No additional sections unless justified by evidence.
-
-### Non-Root Operational AGENTS.md
-
-Non-root module AGENTS files MUST include `Scope` and `Authority & Precedence` blocks at the top (see Section 2), then MAY use the operational template defined in `SKILL.md` for the remaining sections. The operational template sections (`Key Entry Points`, `Config`, `Constraints`, `Gotchas`, etc.) serve as an expanded form of Package Responsibilities and Constraints.
-
-Accepted non-root structure:
-
-```
-Scope block
-Authority & Precedence block (with Inherits:)
-[Operational template sections from SKILL.md]
+```text
+- All user inputs MUST be validated.
+- All user inputs MUST be sanitized before processing.
 ```
 
-No additional sections beyond the operational template unless justified by evidence.
+### Voice and Tense
+
+- Use active voice (Google, Microsoft standards)
+- Use present tense for current behavior
+- Use second person for instructions ("you configure" not "the user configures")
 
 ______________________________________________________________________
 
-## 4. Writing Constraints
+## Measurability and Enforceability
 
-### Language
+### Testable Constraints
 
-- Use MUST / MUST NOT / SHOULD / MAY
-- One rule per bullet
-- No adjectives
-- No rationale
-- No narrative
-- No compound rules
+Constraints SHOULD be measurable when applicable.
 
-Bad:
+**Pattern - Avoid:**
 
-- Validate and sanitize inputs.
+```text
+Code must be clean and maintainable.
+```
 
-Good:
+**Pattern - Prefer:**
 
-- All inputs MUST be validated.
-- All outputs MUST be sanitized.
+```text
+- Linter MUST pass with zero warnings.
+- Code coverage MUST be ≥ 80%.
+- Cyclomatic complexity MUST be ≤ 10 per function.
+```
 
-______________________________________________________________________
+### Structural Constraints
 
-### Measurability
+If not directly measurable, use structural language:
 
-Constraints SHOULD be testable when applicable.
-
-Bad:
-
-- Code must be clean.
-
-Good:
-
-- Lint MUST pass.
-- Coverage MUST be ≥ 80%.
-
-If not measurable, keep it structural (e.g., "MUST be stateless").
+```text
+- Functions MUST be stateless.
+- Dependencies MUST be injected, not instantiated.
+- Configuration MUST be immutable after initialization.
+```
 
 ______________________________________________________________________
 
-### Scope Precision
+## Token Efficiency
 
-Scope section MUST define:
+### Conciseness Patterns
+
+Write the minimum viable documentation:
+
+- Omit empty sections
+- Remove redundant explanations
+- Eliminate filler words ("basically", "simply", "just")
+- Use bulleted lists over paragraphs
+- Front-load critical information
+
+### Smart Omission
+
+MUST omit:
+
+- Sections with no content
+- Obvious information derivable from code
+- Repeated information available elsewhere
+- Generic boilerplate unsupported by evidence
+- Symmetrical sections added for visual balance
+
+### Information Hierarchy
+
+Structure by importance:
+
+- Critical constraints first
+- Common use cases before edge cases
+- Required information before optional details
+- Breaking changes before enhancements
+
+______________________________________________________________________
+
+## Duplication Control
+
+### Anti-Duplication Rules
+
+Before writing:
+
+- Check if information exists elsewhere
+- Link to canonical source instead of duplicating
+- If duplication necessary, mark one as canonical
+
+If information appears in multiple places:
+
+- Designate one source as authoritative
+- Others MUST link to canonical source
+- Update canonical source only
+
+### Cross-Reference Pattern
+
+**Pattern - Avoid:**
+
+```text
+File A: "The API uses OAuth2 with PKCE flow..."
+File B: "Authentication uses OAuth2 with PKCE flow..."
+```
+
+**Pattern - Prefer:**
+
+```text
+File A: "See authentication.md for OAuth2 PKCE flow details."
+File B (authentication.md): "OAuth2 PKCE flow: [detailed content]"
+```
+
+______________________________________________________________________
+
+## Scope Precision
+
+### Boundary Definition
+
+Every document MUST define scope:
 
 ```markdown
-Applies to:
-Excludes:
+**Applies to:** [specific systems, modules, or contexts]
+**Excludes:** [out-of-scope items to avoid confusion]
 ```
 
-If boundary unclear → STOP.
+If boundaries are unclear:
+
+- STOP writing
+- Clarify scope with stakeholders
+- Document scope explicitly before proceeding
+
+### Audience Specification
+
+Define intended audience:
+
+- End users
+- API consumers
+- System operators
+- Internal developers
+- External contributors
+
+Adjust technical depth accordingly.
 
 ______________________________________________________________________
 
-## 5. Token Discipline by Depth
+## Validation and Quality Gates
 
-### Root
+### Pre-Publication Checks
 
-Only:
+Before finalizing documentation:
 
-- Authority
-- Global invariants
-- Cross-cutting security/architecture/quality
+**Accuracy:**
 
-No repetition downstream.
+- All statements verified against implementation
+- No fabricated or assumed behavior
+- Code examples tested and functional
 
-______________________________________________________________________
+**Clarity:**
 
-### Mid-Level
+- No ambiguous requirements
+- All declarative statements enforceable
+- Technical terms defined or linked
 
-Only:
+**Completeness:**
 
-- Real responsibilities (from evidence)
-- Key usage patterns (if recurring)
-- Narrowed constraints (if applicable)
+- Scope clearly defined
+- Critical paths documented
+- Error conditions covered
 
-______________________________________________________________________
+**Format:**
 
-### Leaf
+- Markdown linter passes
+- Links resolve correctly
+- Code blocks have language identifiers
 
-Only:
+### Failure Conditions
 
-- Implementation-focused constraints
-- Local invariants
+MUST NOT publish if:
 
-No child section.
-
-______________________________________________________________________
-
-## 6. Smart Omission Rules
-
-The Skill MUST omit:
-
-- Empty sections
-- Child AGENTS in leaf packages
-- "Key Patterns" if no recurring pattern exists
-- Generic boilerplate not supported by evidence
-
-No filler for symmetry.
+- Scope is undefined or ambiguous
+- Evidence is insufficient for claims
+- Duplicates existing documentation without justification
+- Contains fabricated information
 
 ______________________________________________________________________
 
-## 7. Duplication Control
+## Industry References
 
-Before writing each file:
+This document incorporates principles from:
 
-- Compare with parent
+- **Google Technical Writing Guide** - Active voice, present tense, second person
+- **Google Developer Documentation Style Guide** - Clarity and consistency standards
+- **Microsoft Writing Style Guide** - Conciseness and measurability
+- **Write the Docs** - Community best practices for software documentation
 
-- Remove inherited policy
+For detailed style guidance, consult:
 
-- Keep only:
-
-  - Narrowing
-  - Additions
-  - Overrides
-
-If a rule is identical to parent → delete it.
-
-______________________________________________________________________
-
-## 8. Authority & Precedence Block
-
-Each file MUST declare precedence:
-
-```markdown
-Precedence:
-1. Root AGENTS.md
-2. Domain AGENTS.md
-3. Feature AGENTS.md
-4. Task instructions
-```
-
-Non-root files MUST reference parent via `Inherits:`.
+- Google Technical Writing: <https://developers.google.com/tech-writing>
+- Microsoft Style Guide: <https://learn.microsoft.com/en-us/style-guide/welcome/>
+- Write the Docs: <https://www.writethedocs.org/guide/>
 
 ______________________________________________________________________
 
-## 9. Child Linking Contract (Parents Only)
+## Final Quality Check
 
-Parent files MUST:
+Documentation is complete when:
 
-- List child AGENTS with relative paths
-- Instruct agents to read child AGENTS for specifics
+- Every statement is enforceable or verifiable
+- Every section exists for a specific purpose
+- No information is duplicated across documents
+- No narrative or filler text remains
+- No fabricated or assumed behavior is documented
+- Scope and audience are explicitly defined
 
-Example:
-
-```markdown
-Child AGENTS:
-- ./payments/AGENTS.md
-- ./ledger/AGENTS.md
-
-Agents MUST read child AGENTS before modifying those directories.
-```
-
-______________________________________________________________________
-
-## 10. Validation Requirements (Pre-Commit of Generation)
-
-Before finalizing:
-
-### Hierarchy
-
-- All `Inherits:` paths resolve
-- No orphan AGENTS in scoped tree
-- Parent lists match actual children
-
-### Quality
-
-- No weakening of parent constraints
-- No duplicated policy
-- All rules declarative
-
-### Markdown
-
-- Run formatter/linter if available
-- Do not fail generation if tooling absent
-
-______________________________________________________________________
-
-## 11. Failure Rules
-
-The Skill MUST STOP if:
-
-- Scope is missing
-- Package boundaries ambiguous
-- Evidence insufficient
-- Conflicting inheritance detected
-
-Ask clarification before generation.
-
-______________________________________________________________________
-
-## 12. Acceptance Compliance Mapping
-
-The Skill output is valid only if:
-
-- Scope was confirmed
-- Evidence informed responsibilities
-- Inheritance semantics exist in non-root files
-- Parent lists child AGENTS
-- No policy duplication
-- Files remain concise
-- Validation pass completed
-
-______________________________________________________________________
-
-## Final Compression Check
-
-A generated AGENTS.md is correct if:
-
-- Every bullet is enforceable
-- Every section exists for a reason
-- No repetition across hierarchy
-- No narrative text
-- No fabricated responsibility
-- No weakening of parent constraints
-
-If interpretation is required, rewrite.
+If interpretation is required to understand a requirement, rewrite for clarity.
