@@ -45,7 +45,7 @@ Examples:
 ### Universal Template
 
 ````markdown
-[Executive Summary: 1-2 paragraphs explaining business need and current problem.
+[1-2 paragraphs explaining business need and current problem.
 If issue is complex, more paragraphs may be included but minimize to reduce
 cognitive friction and complexity.]
 

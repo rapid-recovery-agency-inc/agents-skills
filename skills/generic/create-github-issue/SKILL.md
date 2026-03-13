@@ -20,10 +20,10 @@ Follow this sequence. Each phase gates the next. Do not skip the user confirmati
 
 - Extract source repository from context (active file path, user mention, or explicit repo name)
 - Apply org family detection:
-  - If repo name contains "insightt" → target `insightt-tickets`
-  - If repo name contains "foundd" → target `foundd-tickets`
+  - If repo name contains "insightt" → target `rapid-recovery-agency-inc/insightt-tickets`
+  - If repo name contains "foundd" → target `rapid-recovery-agency-inc/foundd-tickets`
   - If unclear → check MCP memory for org hints
-  - If still unclear → ask user: "Is this an (i) `insightt-tickets` or (f) `foundd-tickets` issue?"
+  - If still unclear → ask user to confirm target repo
 - Validate detected target repo:
   - Check if target repo is accessible (use GitHub MCP if available)
   - If not accessible, fall back to asking user for correct repo
