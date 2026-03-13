@@ -62,13 +62,12 @@ cognitive friction and complexity.]
 Pretty printed code fenced SQL if applicable:
 ```sql
 SELECT * FROM table WHERE condition = 'value';
-````
+```
 
 ### NOTES (optional)
 
 - Context that doesn't fit elsewhere
-
-````text
+````
 
 ## Format Variants by Issue Type
 
@@ -91,7 +90,7 @@ What actually happens
 - [ ] Fix verified in staging
 - [ ] Regression test added
 - [ ] Edge cases handled
-````
+```
 
 ### Feature Request
 
