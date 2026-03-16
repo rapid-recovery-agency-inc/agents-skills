@@ -17,6 +17,8 @@ tags_vocab:
   - env-vars
   - environment
   - evaluation
+  - github
+  - issue-management
   - microservice
   - mobile
   - optimization
@@ -24,6 +26,7 @@ tags_vocab:
   - repo-structure
   - skill-authoring
   - theming
+  - ticket-creation
   - ui
 
 schema:
@@ -262,3 +265,22 @@ skills:
     status: active
     added_at: "2026-03-06T13:02:00Z"
     updated_at: "2026-03-06T13:02:00Z"
+  - id: generic/create-github-issue
+    name: create-github-issue
+    description: Create GitHub issues in the appropriate -tickets repository based on source repo family. Performs duplicate detection and produces crystallized, outcome-oriented issue content. Use when a user request implies creating a ticket from code context, discussion, or identified work.
+    category: generic
+    primary_language: multi
+    source_path: skills/generic/create-github-issue
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: create-github-issue
+      link_mode: symlink
+    compatibility: Designed for agent runtimes that support Agent Skills and GitHub MCP integration.
+    tags:
+      - github
+      - issue-management
+      - ticket-creation
+    status: active
+    added_at: "2026-03-13T13:25:00Z"
+    updated_at: "2026-03-13T13:25:00Z"
