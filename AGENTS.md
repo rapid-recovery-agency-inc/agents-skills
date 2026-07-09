@@ -45,6 +45,8 @@ All tags must be lowercase kebab-case.
 - Validate: `just lint`
 - Stage skill: `just stage-skill <skill-name>`
 
+> **Critical:** `.agents/skills/*` is a local-only runtime path — it must remain **empty in the remote repository**. Files there are gitignored and materialized on demand by `just stage-skill`. Never commit staged skills or treat `.agents/` as source of truth. The canonical skill source is always `skills/`.
+
 ### CLI Development
 
 You can install the CLI locally without committing:
