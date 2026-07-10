@@ -1,8 +1,8 @@
 ---
 name: validate-code
 description: >-
-   Run linting, formatting, type-checking, and pytest tests for the codebase using pre-commit. 
-   Use this skill whenever you need to validate that code changes pass all quality gates before committing, pushing and/or executing a coding plan.
+  Run linting, formatting, type-checking, and pytest tests for the codebase using pre-commit.
+  Use this skill whenever you need to validate that code changes pass all quality gates before committing, pushing and/or executing a coding plan.
 ---
 
 # Validate Code
@@ -25,13 +25,13 @@ poetry run pre-commit run --all-files
 
 The `.pre-commit-config.yaml` defines these hooks:
 
-| Hook | Stage | What it does |
-|------|-------|--------------|
-| **ruff (fix)** | pre-commit | Auto-fixes lint issues (except E501 line length) |
+| Hook            | Stage      | What it does                                      |
+| --------------- | ---------- | ------------------------------------------------- |
+| **ruff (fix)**  | pre-commit | Auto-fixes lint issues (except E501 line length)  |
 | **ruff-format** | pre-commit | Enforces consistent formatting (Black-compatible) |
-| **ruff (E501)** | pre-commit | Fails on remaining line-length violations |
-| **mypy** | pre-commit | Static type-checking across `http_py/` |
-| **pytest** | pre-push | Runs `pytest -v` |
+| **ruff (E501)** | pre-commit | Fails on remaining line-length violations         |
+| **mypy**        | pre-commit | Static type-checking across `http_py/`            |
+| **pytest**      | pre-push   | Runs `pytest -v`                                  |
 
 > **Note:** The `pytest` hook only runs on `pre-push` stage by default.
 > To include it during local validation, run:
@@ -45,9 +45,9 @@ The `.pre-commit-config.yaml` defines these hooks:
 1. **ruff lint / format** — If ruff auto-fixed files, they will show as
    "Failed" but the fixes are already applied. Re-run the command to confirm
    a clean pass.
-2. **mypy** — Type errors must be resolved manually. Read the mypy output
+1. **mypy** — Type errors must be resolved manually. Read the mypy output
    for file paths and line numbers.
-3. **pytest** — Test failures include tracebacks. Fix the failing test or
+1. **pytest** — Test failures include tracebacks. Fix the failing test or
    the code under test.
 
 ## Quick Individual Commands
