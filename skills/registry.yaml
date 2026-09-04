@@ -337,3 +337,21 @@ skills:
     status: active
     added_at: "2026-07-09T00:00:00Z"
     updated_at: "2026-07-09T00:00:00Z"
+  - id: generic/qa-specs
+    name: qa-specs
+    description: "Use when aligning feature specs before QA handoff, or when specs need QA/implementation-driven development validation. Triggers: vague acceptance criteria, missing edge cases, undefined error handling, implicit role/ownership rules, untestable rules."
+    category: generic
+    primary_language: multi
+    source_path: skills/generic/qa-specs
+    entrypoint: SKILL.md
+    version: 0.1.0
+    install:
+      target_path: qa-specs
+      link_mode: symlink
+    tags:
+      - documentation
+      - development
+      - evaluation
+    status: active
+    added_at: "2026-09-04T00:00:00Z"
+    updated_at: "2026-09-04T00:00:00Z"
