@@ -2,13 +2,12 @@
 
 ## Purpose
 
-Verify all gaps addressed before implementation.
+Verify all gaps addressed before implementation. Confirm that, given identical inputs and base conditions, the spec would yield the same audit result.
 
 ## Contract
 
-- Check all gaps from initial review are resolved
-- If complete → `APPROVED`
-- If incomplete → `NEEDS FURTHER REFINEMENT`
+- Completeness Check: all gaps resolved.
+- Output Format: Clearly state one of the following: APPROVED or NEEDS FURTHER REFINEMENT.
 
 ## Format
 
